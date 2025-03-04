@@ -1,0 +1,47 @@
+From existing dashboard - More details available from Wes Edwards
+Columns marked with * require granular processing from a human; must reach 
+	relevance threshold to justify (?)
+
+COLUMNS
+Award Name - Official Title of opportunity
+Specialty* - PM&R specialty addressed by opportunity. From PM&R site, 
+	specialties are any combination of:
+	- Interventional Spine (currently listed as "Spine")	
+		Code should be "Intvl Spine" for clarity
+	- Pain (currently unlisted)
+		Code should be "Pain"
+	- Interventional MSK/Arthritis (currently listed as "MSK"; could separate 
+		into "MSK" and "Arthritis")
+		Codes should be "MSK" and "Arthritis"
+	- Spinal Cord Injury (currently listed as "SCI")
+		Code should be "SCI"
+	- Spasticity (currently unlisted)
+		Code should be "Spasticity"
+	- Limb Loss/Amputee (currently unlisted)
+		Code should be "Limb Loss"
+	- EMG (currently unlisted)
+		Code should be "EDX" for electrodiagnostics
+	- Brain Injury (currently listed as "TBI")
+		Code should be "TBI"
+	- Stroke 
+		Code should be "Stroke"
+	- Sports Medicine (currently unlisted)
+		Code should be "Sports"
+	- Also have an "Any" code for general awards
+Funding Mechanism - NIH code or N/A
+Organization - Sub-org(s) for NIH, or sponsor for grants/clinical trials
+Link - Hyperlinked text "Click here" with link to opportunity page
+Brief Description - Summary paragraph
+Award Amount* - Details on max award offerings
+	- Could be yearly maximum 
+	- Could be type of support, i.e. "salary support (not to exceed 100% effort)"
+	- Could be combo of types of support, i.e. "100k/yr salary, 20k/yr support"
+	- Could be "Not Specified"
+Maximum Duration (Yr) - Integer or N/A
+Letter of Intent Required? - "Y", "Y *Requested, not required", or "N"
+Due Date* - Date or "Rolling", but relevant opportunities should have 
+	rolling due dates here and be colored appropriately based on upcoming dates
+WANT TO ADD 
+Relevance - Quantitative measurement of relevance to URMC PM&R. 0 to 10 score, 
+	unsure on method of analysis yet (LLM?). Will be used to justify granular 
+	processing
