@@ -4,6 +4,26 @@ from io import StringIO
 
 from constants import *
 
+# parses user-entered comma-separated list into formatted user query
+# Params:
+    # user_query <class 'str'>: user-entered comma-separated list
+# Return:
+    # returns query string optimized for use with clinicaltrials.gov API
+def create_trials_query(user_query):
+    splits = user_query.split(",")
+    result = ""
+    for i in range(0, len(splits)):
+        if i == 0:
+            result += splits[i]
+        else:
+            if splits[i][0] == ' ':
+                result += " OR"
+                result += splits[i]
+            else:
+                result += " OR "
+                result += splits[i]
+    return result
+
 # grabs up to 1000 clinical trial opportunities from clinicaltrials.gov
 # Params:
     # user_query <class 'str'>: pre-processed user-entered list
