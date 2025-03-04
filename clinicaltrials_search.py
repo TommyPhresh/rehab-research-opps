@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+from io import StringIO
 
 from constants import *
 
@@ -25,7 +26,7 @@ def search_clinical_trials(user_query, is_condition):
         print("HTTP QUERY ERROR: ", response.text)
         return 1
 
-    elif len(response.text < empty_response_length):
+    elif len(response.text) < empty_response_length:
         # Most likely result of an over-long user query
         # Or using "AND" when "OR" was desired
         # Send user back to query entry
@@ -34,5 +35,32 @@ def search_clinical_trials(user_query, is_condition):
         
     else:
         return response
+
+# converts clinicaltrials.gov API response into dashboard universal format
+# Params:
+# response <class 'requests.models.Response'>
+# Return:
+# pandas df with universal format columns only
+def trials_to_universal_format(response):
+    results = StringIO(response.text)
+    data = pd.read_csv(results)
+    data.rename(columns={"Study Title":"Award Name", "Sponsor":"Organization",
+                         "Study URL":"Link", "Brief Summary":"Brief Description",
+                         "Primary Completion Date":"Due Date"}, inplace=True)
+    data = data.loc[:, data.columns.intersection(["Award Name","Organization",
+                                                  "Link", "Brief Description","Due Date"])]
+    data["Link"] = data["Link"].map(lambda s: "=HYPERLINK(" + s + ", 'Click here')")
+    data["Specialty"] = "Processing needed"
+    data["Funding Mechanism"] = "Clinical Trial"
+    data["Award Amount"] = "Processing needed"
+    data["Maximum Duration (Yr)"] = "Processing needed"
+    data["Letter of Intent Required?"] = "Processing needed"
+    data["Relevance"] = "Coming soon"
+    data = data.loc[:, ["Award Name", "Specialty", "Funding Mechanism",
+                        "Organization", "Link", "Brief Description",
+                        "Award Amount", "Maximum Duration (Yr)",
+                        "Letter of Intent Required?", "Due Date", "Relevance"]]
+    return data
+    
 
 
