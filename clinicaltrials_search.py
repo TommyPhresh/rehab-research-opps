@@ -60,7 +60,7 @@ def search_clinical_trials(user_query, is_condition):
 # Params:
 # response <class 'requests.models.Response'>
 # Return:
-# pandas df with universal format columns only
+# pandas df with universal format columns
 def trials_to_universal_format(response):
     results = StringIO(response.text)
     data = pd.read_csv(results)
