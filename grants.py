@@ -33,7 +33,7 @@ def grants_to_universal_format(data):
     df = pd.DataFrame(dict_list)
     df.rename(columns={"title":"Award Name",
                        "closeDate":"Due Date",
-                       "agencyCode":"Organization"})
+                       "agencyCode":"Organization"}, inplace=True)
     df["Specialty"] = "Processing needed"
     df["Funding Mechanism"] = "Discretionary grant"
     df['Award Amount'] = "Processing needed"
