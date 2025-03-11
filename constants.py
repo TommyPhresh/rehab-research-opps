@@ -5,8 +5,11 @@ trials_statuses = "NOT_YET_RECRUITING,RECRUITING,AVAILABLE,ENROLLING_BY_INVITATI
 trials_pagesize = 1000
 empty_response_length = 407
 # see datadictionary.txt for column definitions
-trials_columns = ["Award Name", "Specialty", "Funding Mechanism",
+columns = ["Award Name", "Specialty", "Funding Mechanism",
                   "Organization", "Link", "Brief Description", "Award Amount",
                   "Maximum Duration (Yr)", "Letter of Intent Required?",
                   "Due Date", "Relevance"]
+
+grants_URL = "https://api.grants.gov/v1/api/search2"
+
 
