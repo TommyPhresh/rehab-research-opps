@@ -6,13 +6,14 @@ COLUMNS
 Award Name - Official Title of opportunity
 Specialty* - PM&R specialty addressed by opportunity. From PM&R site, 
 	specialties are any combination of:
+	FINAL LIST - Intvl Spine, Pain Mgmt, MSK, SCI, Spasticity, Limb Loss, 
+		EMG, Ultrasound, TBI, Stroke, Sports Med, Neuropsych
 	- Interventional Spine (currently listed as "Spine")	
 		Code should be "Intvl Spine" for clarity
 	- Pain (currently unlisted)
-		Code should be "Pain"
-	- Interventional MSK/Arthritis (currently listed as "MSK"; could separate 
-		into "MSK" and "Arthritis")
-		Codes should be "MSK" and "Arthritis"
+		Code should be "Pain Mgmt"
+	- Interventional MSK/Arthritis (currently listed as "MSK")
+		Codes should be "MSK"
 	- Spinal Cord Injury (currently listed as "SCI")
 		Code should be "SCI"
 	- Spasticity (currently unlisted)
@@ -20,14 +21,17 @@ Specialty* - PM&R specialty addressed by opportunity. From PM&R site,
 	- Limb Loss/Amputee (currently unlisted)
 		Code should be "Limb Loss"
 	- EMG (currently unlisted)
-		Code should be "EDX" for electrodiagnostics
+		Code should be "EMG" for EMG
+		Code should be "Ultrasound" for ultrasound
 	- Brain Injury (currently listed as "TBI")
 		Code should be "TBI"
 	- Stroke 
 		Code should be "Stroke"
 	- Sports Medicine (currently unlisted)
-		Code should be "Sports"
-	- Also have an "Any" code for general awards
+		Code should be "Sports Medicine"
+	- Neuropsychology
+		Code should be "Neuropsych"
+	- Also have an "General" code for general awards
 Funding Mechanism - NIH code or N/A
 Organization - Sub-org(s) for NIH, or sponsor for grants/clinical trials
 Link - Hyperlinked text "Click here" with link to opportunity page
