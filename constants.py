@@ -13,36 +13,33 @@ columns = ["Award Name", "Specialty", "Funding Mechanism",
 grants_URL = "https://api.grants.gov/v1/api/search2"
 
 nih_org_map = {
-    "FIC":[],
-    "NCATS":[],
+    "FIC":["Any"],
+    "NCATS":["General"],
     "NCCIH":["Intvl Spine","Pain Mgmt","MSK"],
     "NCI":["Cancer"],
     "NEI":[],
     "NHGRI":[],
     "NHLBI":[],
-    "NIA":["Geriatric"],
+    "NIA":["Any"],
     "NIAAA":[],
     "NIAID":[],
     "NIAMS":["MSK","Pain Mgmt"],
-    "NIBIB":["EMG","Ultrasound"],
+    "NIBIB":["EMG","Ultrasound", "MSK"],
     "NICHD":["Pediatrics"],
     "NIDA":["Neuropsych","Pain Mgmt"],
     "NIDCD":[],
     "NIDCR":[],
     "NIDDK":[],
     "NIEHS":[],
-    "NIGMS":["Intvl Spine","Pain Mgmt","MSK","SCI","Spasticity","Limb Loss",
-             "EMG","Ultrasound","TBI","Stroke","Sports Med","Neuropsych",
-             "Cancer","Pediatrics","Geriatric","General"],
+    "NIGMS":["Any"],
     "NIMH":["Neuropsych"],
     "NIMHD":["Neuropsych"],
     "NINDS":["TBI","Stroke","Neuropsych","Spasticity"],
-    "NINR":["Intvl Spine","Pain Mgmt","MSK","SCI","Spasticity","Limb Loss",
-             "EMG","Ultrasound","TBI","Stroke","Sports Med","Neuropsych",
-             "Cancer","Pediatrics","Geriatric","General"],
+    "NINR":["Any"],
     "NLM":[],
     "OD":["General"],
-    "CLC":["Intvl Spine","Pain Mgmt","MSK","SCI","Spasticity","Limb Loss",
-             "EMG","Ultrasound","TBI","Stroke","Sports Med","Neuropsych",
-             "Cancer","Pediatrics","Geriatric","General"]
+    "CLC":["Any"]
     }
+
+nsf_link = "https://new.nsf.gov/funding/opps/csvexport?page&_format=csv"
+nsf_path = "C:\\Users\\Student\\Downloads\\nsf_funding.csv"
