@@ -1,5 +1,6 @@
 import webbrowser
 from constants import nsf_link, nsf_path
+import pandas as pd 
 
 
 # Downloads ALL available NSF opportunities to user's Downloads folder
@@ -27,6 +28,12 @@ def nsf_to_universal_format():
                                         (x == "Click link") else x.split(", ")[0])
     df = df[df["Award Type"].notnull()]
     df["Funding Mechanism"] = df["Award Type"].map(lambda x: "NIH " + x)
+    df["Specialty"] = "Requires processing"
+    df["Organization"] = "Please click link for program details"
+    df["Award Amount"] = "Please click link for award details"
+    df["Maximum Duration (Yr)"] = "Please click link for award details"
+    df["Letter of Intent Required?"] = "Please click link for award details"
+    df["Relevance"] = "Coming soon"
                                                      
     # renaming & reorganizing
     df.rename(columns={"Title":"Award Name", "Synopsis":"Brief Description",
@@ -35,3 +42,5 @@ def nsf_to_universal_format():
                 "Organization","Link","Brief Description","Award Amount",
                 "Maximum Duration (Yr)","Letter of Intent Required?",
                 "Due Date","Relevance"]]
+
+    return df
