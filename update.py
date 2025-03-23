@@ -1,7 +1,7 @@
 import pandas as pd
 import os, time
 from constants import *
-import clinicaltrials_search, grants, nih, nsf
+import trials, grants, nih, nsf
 
 # returns dataframe with all clinical trials retrieved from PM&R-specific
 # search terms in dashboard format
@@ -9,11 +9,11 @@ def update_clinical_trials():
     df = pd.DataFrame()
     for condition in search_conditions:
         df = df._append(
-            clinicaltrials_search.trials_to_universal_format(
-                clinicaltrials_search.search_clinical_trials(
+            trials.trials_to_universal_format(
+                trials.search_clinical_trials(
                     condition, True)))
     for intervention in search_interventions:
-        df = df._append(trials_to_universal_format(search_clinical_trials(intervention, False)))
+        df = df._append(trials.trials_to_universal_format(trials.search_clinical_trials(intervention, False)))
 
     return df
 
