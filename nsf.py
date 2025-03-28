@@ -27,7 +27,7 @@ def nsf_to_universal_format():
     df["Due Date"] = df["Due Date"].map(lambda x: x if
                                         (x == "Click link") else x.split(", ")[0])
     df = df[df["Award Type"].notnull()]
-    df["Funding Mechanism"] = df["Award Type"].map(lambda x: "NIH " + x)
+    df["Funding Mechanism"] = df["Award Type"].map(lambda x: "NSF " + x)
     df["Specialty"] = "Requires processing"
     df["Organization"] = "Please click link for program details"
     df["Award Amount"] = "Please click link for award details"
