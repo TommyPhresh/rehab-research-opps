@@ -1,6 +1,6 @@
 import pandas as pd 
 import numpy as np
-from sklearn.feature_extracion.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test_split
 from sklearn.metrics import recall_score, make_scorer
 from sklearn.linear_model import LogisticRegression
@@ -97,6 +97,7 @@ features = ["Award Name", "Organization", "Brief Description"]
 X = clin_df[features]
 Y = clin_df["Availability"].map(lambda x: 1 if x == "Y" else 0)
 tv = TfidfVectorizer()
+X = X.fillna("")
 X_combined = X.apply(lambda row: ' '.join(row), axis=1)
 X_tfidf = tv.fit_transform(X_combined)
 # testing 
