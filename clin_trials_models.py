@@ -44,45 +44,6 @@ class neural_net(nn.Module):
         x = self.softmax(x)
         return x
 
-# create and test neural network for our data
-def neural_network(X, Y):
-    # hyperparameters
-    hidden_size = 20
-    epochs = 10
-    batch_size = 8
-    # format datasets
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=315)
-    X_train_tensor = torch.tensor(X_train.toarray(), dtype=torch.float32)
-    Y_train_tensor =  torch.tensor(Y_train.values, dtype=torch.float32).unsqueeze(1)
-    X_test_tensor = torch.tensor(X_test.toarray(), dtype=torch.float32)
-    Y_test_tensor = torch.tensor(Y_test.values, dtype=torch.float32).unsqueeze(1)
-    # initialize model
-    model = neural_net(X_train.shape[1], hidden_size, Y_train.shape[1])
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
-    # train model
-    for epoch in range(epochs):
-        model.train()
-        for i in range(0, X_train.shape[0], batch_size):
-            x_batch = X_train_tensor[i:i+batch_size]
-            y_batch = Y_train_tensor[i:i+batch_size]
-            optimizer.zero_grad()
-            predictions = model(x_batch)
-            loss = criterion(predictions, y_batch)
-            loss.backward()
-            optimizer.step()
-        print("Epoch ", {epoch+1}, "/", epochs, " | Loss: ", {loss.item()})
-
-    # evaluate model
-    model.eval()
-    with torch.no_grad():
-        test_predictions = model(X_test_tensor)
-        test_loss = criterion(test_predictions, Y_test_tensor)
-        accuracy = ((test_predictions > 0.5) == Y_test_tensor).float().mean()
-        print("Test Loss: ", test_loss.item():.4f, " | Test Accuracy: ", accuracy.item():.4f)
-        
-    print("Neural Network Recall: %.2f.%%" % (results.mean() * 100))
-
 # create and test random forest for our data
 def random_forest(X, Y):
     model = RandomForestClassifier(n_estimators=100)
@@ -102,5 +63,4 @@ X_combined = X.apply(lambda row: ' '.join(row), axis=1)
 X_tfidf = tv.fit_transform(X_combined)
 # testing 
 logistic_reg(X_tfidf, Y)
-neural_network(X_tfidf, Y)
 random_forest(X_tfidf, Y)
