@@ -2,15 +2,13 @@ import duckdb, torch, transformers
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
-# model is too large to be saved to disk - follow link
-
 # TO BE RUN - helper function to format for BERT input
 def encode_features(sample, tokenizer, max_length=512):
     encoded_dict = tokenizer.encode_plus(
-        row["Award_Name"] +
+        row["Award Name"] +
         row["Organization"] +
-        row["Funding_Mechanism"] +
-        row["Brief_Description"],
+        row["Funding Mechanism"] +
+        row["Brief Description"],
         add_special_tokens=True,
         max_length=max_length,
         pad_to_max_length=True,
@@ -31,16 +29,19 @@ def ingest_tables(data_path):
     AS SELECT *
     FROM read_csv({data_path}, header=True)
     """)
+    data = conn.execute("""
+    SELECT * FROM input
+    """).fetchdf()
     X = conn.execute("""
-    SELECT Award_Name, Organization, Funding_Mechanism, Brief_Description
+    SELECT "Award Name", Organization, "Funding Mechanism", "Brief Description"
     FROM input
     """).fetchdf()
     Y = conn.execute("""
-    SELECT Availability
+    SELECT Relevance
     FROM input
     """).inputdf()
-    Y = Y["Availability"].map(lambda x: 1 if x == "Y" else 0)
-    return X, Y
+    Y = Y["Relevance"].map(lambda x: 1 if x == "Y" else 0)
+    return data, X, Y
 
 # TO BE RUN - convert from df to BERT tensor format
 def format_tables(X, Y, tokenizer):
@@ -178,7 +179,8 @@ def load_model(model_path, tokenizer_path):
 def make_preds(data_path, model_path, tokenizer_path, batch_size=16):
     # load and format data
     model, tokenizer = load_model(model_path, tokenizer_path)
-    X, Y = format_tables(ingest_tables(data_path), tokenizer)
+    data, X, Y = ingest_tables(data_path)
+    X, Y = format_tables(X, Y, tokenizer)
     input_ids = X["input_ids"]
     attention_mask = X["attention_mask"]
     token_type_ids = X["token_type_ids"]
@@ -205,4 +207,7 @@ def make_preds(data_path, model_path, tokenizer_path, batch_size=16):
         batch_preds = torch.argmax(logits, dim=1).cpu().numpy()
         all_preds.extend(batch_preds)
 
-    return all_preds
+    tmp = pd.DataFrame(all_preds, columns=["Relevance"])
+    data["Relevance"] = tmp["Relevance"]
+    data.to_csv(data_path)
+    
