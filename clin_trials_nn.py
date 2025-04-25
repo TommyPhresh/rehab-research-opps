@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import duckdb
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -168,5 +169,54 @@ def build_model()
         trained_model, X_test_tensor, Y_test_tensor, threshold=0.4
         )
     return trained_model
+
+def load_model(model_path, vocab_path):
+    model = convolutional_nn()
+    model.load_state_dict(torch.load(model_path))
+    vocab = torch.load(vocab_path)
+    return model, vocab
     
-    
+# WILL BE RUN - to generate new predictions
+def generate_trial_preds(model_path, vocab_path, data_path,
+                         max_len=100, batch_size=16):
+    model, vocab = load_model(model_path, vocab_path)
+    # ingest data
+    conn = duckdb.connect()
+    conn.execute("""
+    CREATE TABLE data
+    AS SELECT *
+    FROM read_csv({data_path}, header=True)
+    """)
+    data = conn.execute("""
+    SELECT * FROM data
+    WHERE Link LIKE '%clinicaltrials.gov%'
+    AND Relevance IS NULL
+    """).fetchdf()
+    # format data for input - tokenization
+    text_input = data["Award_Name"] + "\n" + data["Organization"] + "\n" + data["Brief Description"]
+    text_input = text_input.str.lower().str.strip().apply(lambda text: text.split())
+    text_input = text_input.apply(lambda tokens: [vocab[token] for token in tokens if token in vocab])
+    text_input = text_input.apply(lambda seq: seq[:100] if len(seq) >= max_len else seq + [0] * (max_len - len(seq)))
+    text_input = np.array(text_input.tolist())
+    # prepare tokenized data for input - data loading
+    text_input = torch.tensor(text_input, dtype=torch.long)
+    input_dataset = TensorDataset(text_input)
+    input_dataloader = DataLoader(input_dataset, batch_size=batch_size,
+                                  shuffle=False)
+    # generate predictions
+    model.eval()
+    all_preds = []
+    with torch.no_grad():
+        for batch in input_dataloader:
+            text = batch[0]
+            outputs = model(text)
+            batch_preds = F.softmax(outputs, dim=1)
+            batch_answers = []
+            for pred in batch_preds:
+                batch_answer = "Y" if pred[1] > pred[0] else "N"
+                batch_answers.extend(batch_answer)
+            all_preds.extend(batch_answers)
+    # merge back into OG data
+    tmp = pd.DataFrame(all_preds, columns=["Relevance"])
+    data["Relevance"] = tmp["Relevance"]
+    data.to_csv(data_path)
