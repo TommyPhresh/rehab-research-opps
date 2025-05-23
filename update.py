@@ -1,7 +1,7 @@
 import pandas as pd
 import os, time
 from constants import *
-import trials, grants, nih, nsf
+import trials, grants, nih, nsf, specialty_model
 
 # returns dataframe with all clinical trials retrieved from PM&R-specific
 # search terms in dashboard format
@@ -53,6 +53,7 @@ def update_nsf():
 
 # combines all 4 sources into one CSV for clinician processing    
 def update():
+    # create one central csv
     df = update_clinical_trials()
     df = df._append(update_grants())
     update_nih()
@@ -60,4 +61,6 @@ def update():
     df = df._append(update_nih2())
     df = df._append(update_nsf())
     df = df.drop_duplicates()
-    df.to_csv("OUTPUT.csv")
+    # get specialty column created 
+    labeled_df = specialty_model.begin_model(df)
+
