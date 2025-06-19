@@ -1,5 +1,12 @@
+import logging 
+import pandas as pd
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from constants import REFRESH_INTERVAL
+
 from private_updaters import updaters as privates
-from gov_updaters import *
+# from gov_updaters import updaters as publics 
 from functools import reduce
 
 """
@@ -21,20 +28,65 @@ Pass to Jinja the same way I've been doing except Parquet not csv
 """
 
 # FORMAT
-    # Name - award name
-    # Org - sponsoring organization
-    # Desc - brief description
-    # 
+    # name - award name
+    # org - sponsoring organization
+    # desc - brief description
+    # deadline - due date
+    # link - URL
+    # grant - T/F 
 # 
 def update():
-    data = get_data()
+    if not is_fresh():
+        data = rebuild_data()
+        update_last_refresh()
 
+# grabs all API results, computes embeddings, and 
+# writes results to a Parquet file on server
+def rebuild_data(dest='data.parquet'):
+    # grab all API results
+    data = get_data()
+    # compute embeddings
+
+    # save to Parquet
+    save_to_parquet(data, dest)
+
+    return data
+
+    
+# updates last refresh timestamp
+def update_last_refresh(filename='last_refresh.txt'):
+    with open(filename, 'w') as f:
+        f.write(datetime.now().isoformat())
+
+# reads last refresh timestamp if available
+def get_last_refresh(filename='last_refresh.txt'):
+    try: 
+        with open(filename, 'r') as f:
+            return datetime.fromisoformat(f.read().strip())
+    except Exception: 
+        return datetime.min
+
+# checks time since last refresh
+def is_fresh(interval=REFRESH_INTERVAL):
+    last_refresh = get_last_refresh()
+    return (datetime.now() - last_refresh) < interval
+
+# converts list of dicts to parquet file 
+# for compressed storage on server
+def save_to_parquet(data, filename='data.parquet'):
+    df = pd.DataFrame(data)
+    df.to_parquet(filename, engine='pyarrow')
+
+# calls all updaters, public and private, then appends
+# their results into one list of dicts
 def get_data():
     data = []
     for api in privates:
-        api(data)
-    publics = gov_updaters_all
-    result = reduce(lambda f, func: func(f), privates, data)
-    return reduce(lambda f, func: func(f), publics, result)
+        try: 
+            api(data)
+        except: pass
+    # for api in publics: 
+        # api(data)
+    return data
 
 
