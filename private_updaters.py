@@ -44,18 +44,17 @@ def aha():
 # Tomberg Family Philanthropies
 def tomberg(data):
     link = "https://www.tombergphilanthropies.org/about-our-grants/"
-    if requests.get(link).status_code == 200:
-        now = datetime.now()
-        if (now.month <= 7) and (now.month <= 7):
-            due_date = datetime(now.year, 7, 21)
-        else: due_date = datetime(now.year + 1, 7, 21)
-        data.append({
-            "name": "Tomberg Family Philanthropies",
-            "org": "Tomberg Family Foundation, Tomberg & Brecher Charitable Funds",
-            "desc": "The Tomberg Family Philanthropies only makes grants to 501(c)(3) nonprofit organizations based in the United States and certain government entities or public institutions in the United States such as public schools and universities. We fund projects worldwide that are run by these organizations. Our grants normally range from $5,000 to $20,000.",
-            "deadline": due_date.strftime("%Y-%m-%d"),
-            "link": link, "grant": True
-        })
+    now = datetime.now()
+    if (now.month <= 7) and (now.month <= 7):
+        due_date = datetime(now.year, 7, 21)
+    else: due_date = datetime(now.year + 1, 7, 21)
+    data.append({
+        "name": "Tomberg Family Philanthropies",
+        "org": "Tomberg Family Foundation, Tomberg & Brecher Charitable Funds",
+        "desc": "The Tomberg Family Philanthropies only makes grants to 501(c)(3) nonprofit organizations based in the United States and certain government entities or public institutions in the United States such as public schools and universities. We fund projects worldwide that are run by these organizations. Our grants normally range from $5,000 to $20,000.",
+        "deadline": due_date.strftime("%Y-%m-%d"),
+        "link": link, "grant": True
+    })
 
 # Robert & Mary Jane Smith Foundation
 def rmjsf(data):
@@ -81,7 +80,7 @@ def mli(data):
     else: due_date = datetime(now.year + 1, 9, 1)
     data.append({
         "name": "Mind & Life Francisco J. Varela Research Grants",
-        "org:" "Mind & Life Institute",
+        "org": "Mind & Life Institute",
         "desc": """The Mind & Life Francisco J. Varela Research Grants - an important and integral component of Mind & Life's support of contemplative scientists and scholars - are based on neuroscientist and philosopher Francisco J. Varela's belief that contemplative practices offer modern science novel, valuable methods for investigating human experience.
         The Varela Grants fund rigorous examinations of contemplative practices with the ultimate goal that findings derived from such investigations will provide greater insight into contemplative practices and their applications for reducing human suffering and promoting flourishing.
         Proposals are encouraged across broad domains, including: cognitive science, clinical psychology, education, anthropology, neuroscience, health/medical, social science, and humanities. Preference is given to proposals that incorporate first-person contemplative methods (e.g., introspective investigation and reports on subjective experience) into cognitive, behavioral, physiological, clinical, or socio-cultural research. Preference is also given to proposals that have the potential to contribute to interdisciplinary knowledge and to make connections across different disciplines. This grant program encourages the active collaboration of scientists with contemplative scholars/practitioners in all phases of research.""",
@@ -113,39 +112,36 @@ def hanger(data):
     if (now.month < 4):
         due_date = datetime(now.year, 4, 1)
     else: due_date = datetime(now.year + 1, 4, 1)
-    data.append([
+    data.append(
         {
             "name": "Hanger Foundation Empowerment Grant",
             "org": "Hanger Foundation",
             "desc": "Supporting nonprofit organizations that serve people with physical challenges",
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": link, "grant": True
-        },
-        {
+        })
+    data.append({
             "name": "Hanger Foundation Veteran Grant",
             "org": "Hanger Foundation",
             "desc": "Supporting nonprofit organizations that serve our veterans.",
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": link, "grant": True
-        }
-        ])
+        })
 
 # Beckman Foundation
 def beckman(data):
     link = "https://www.beckman-foundation.org/programs/beckman-young-investigator/"
-    response = requests.get(link)
-    if response.status_code == 200:
-        now = datetime.now()
-        if (now.month < 8):
-            due_date = datetime(now.year, 8, 1)
-        else: due_date = datetime(now.year + 1, 8, 1)
-        data.append({
-            "name": "Beckman Young Investigator Program",
-            "org": "The Arnold & Mabel Beckman Foundation",
-            "desc": "The Beckman Young Investigator (BYI) Program provides research support to the most promising young faculty members in the early stages of their academic careers in the chemical and life sciences, particularly to foster the invention of methods, instruments, and materials that will open up new avenues of research in science.",
-            "deadline": due_date.strftime("%Y-%m-%d"),
-            "link": link, "grant": True
-            })
+    now = datetime.now()
+    if (now.month < 8):
+        due_date = datetime(now.year, 8, 1)
+    else: due_date = datetime(now.year + 1, 8, 1)
+    data.append({
+        "name": "Beckman Young Investigator Program",
+        "org": "The Arnold & Mabel Beckman Foundation",
+        "desc": "The Beckman Young Investigator (BYI) Program provides research support to the most promising young faculty members in the early stages of their academic careers in the chemical and life sciences, particularly to foster the invention of methods, instruments, and materials that will open up new avenues of research in science.",
+        "deadline": due_date.strftime("%Y-%m-%d"),
+        "link": link, "grant": True
+        })
 
 # Warren Alpert Foundation
 def alpert(data):
@@ -154,8 +150,9 @@ def alpert(data):
     now = datetime.now()
     dues = [datetime(1999, 1, 15), datetime(1999, 4, 15),
             datetime(1999, 7, 15), datetime(1999, 10, 15)]
+    due_date1, due_date2 = None, None
     for i in range(len(dues)):
-        if (now.month <= dues[i].month) and (now.day + 14 < dues[i].day):
+        if (now.month <= dues[i].month):
             due_date1 = datetime(now.year, dues[i].month, dues[i].day)
             break
     row1 = {
@@ -165,33 +162,24 @@ def alpert(data):
         "deadline": due_date1.strftime("%Y-%m-%d"),
         "link": link1, "grant": True
     }
-    if requests.get(link2).status_code == 200:
-        if (now.month < 11):
-            due_date2 = datetime(now.year, 11, 1)
-        else:
-            due_date2 = datetime(now.year + 1, 11, 1)
-        row2 = {
-            "name": "The Warren Alpert Distinguished Scholar Award for Neuroscience",
-            "org": "Warren Alpert Foundation",
-            "desc": "These transitional awards are to enable a postdoctoral researcher to advance to become a full-time faculty member at the Assistant Professor level or higher and to promote the development of a laboratory program that will lead to independent funding. The medical school, research institute, or academic hospital appointing the scholar will be awarded $200,000 annually for two years to cover salary, lab costs, and related expenses. Under certain circumstances, the awardee may transfer funding to support their beginning faculty position. Indirect costs of up to 15% of direct costs may be included in the $200,000.",
-            "deadline": due_date2.strftime("%Y-%m-%d"),
-            "link": link2, "grant": True
-        }
-    if row2: data.append([row1, row2])
-    else: data.append([row1])
-    
+    row2 = None
+    if (now.month < 11):
+        due_date2 = datetime(now.year, 11, 1)
+    else:
+        due_date2 = datetime(now.year + 1, 11, 1)
+    row2 = {
+        "name": "The Warren Alpert Distinguished Scholar Award for Neuroscience",
+        "org": "Warren Alpert Foundation",
+        "desc": "These transitional awards are to enable a postdoctoral researcher to advance to become a full-time faculty member at the Assistant Professor level or higher and to promote the development of a laboratory program that will lead to independent funding. The medical school, research institute, or academic hospital appointing the scholar will be awarded $200,000 annually for two years to cover salary, lab costs, and related expenses. Under certain circumstances, the awardee may transfer funding to support their beginning faculty position. Indirect costs of up to 15% of direct costs may be included in the $200,000.",
+        "deadline": due_date2.strftime("%Y-%m-%d"),
+        "link": link2, "grant": True
+    }
+    data.append(row1)
+    data.append(row2)    
 
 # Mutual of America
 def mutual(data):
     link = "https://www.mutualofamerica.com/about-us/community-building"
-    driver = webdriver.Firefox()
-    driver.get(link)
-    app_link = WebDriverWait(driver, 10).until(
-        expected_conditions.presence_of_element_located((
-            By.PARTIAL_LINK_TEXT,
-            'Community Partnership Award Competition Application'))
-        )
-    app_link = app_link.get_attribute('href')
     now = datetime.now()
     if (now.month < 7) and (now.day + 14 <= 30):
         due_date = datetime(now.year, 7, 1)
@@ -204,7 +192,7 @@ def mutual(data):
         Each year, the Mutual of America Foundation sponsors a national competition in which hundreds of organizations demonstrate the value of their partnership to the communities they serve, their ability to be replicated by others, and their capacity to stimulate new approaches to addressing significant social issues.
         """,
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": app_link, "grant": True
+        "link": link, "grant": True
     })
 
 # Medline Industries
@@ -213,8 +201,9 @@ def medline(data):
     now = datetime.now()
     dues = [datetime(1999, 3, 31), datetime(1999, 6, 30),
             datetime(1999, 9, 30), datetime(1999, 12, 31)]
+    due_date = None
     for i in range(len(dues)):
-        if (now.month <= dues[i].month) and (now.day + 14 < dues[i].day):
+        if (now.month + 1 <= dues[i].month):
             due_date = datetime(now.year, dues[i].month, dues[i].day)
             break
         
@@ -226,13 +215,11 @@ def medline(data):
         "link": link, "grant": True
     })
         
-
 # Pfizer
 def pfizer(rows):
     def scrape(soup, data):
         table = soup.find('table', class_='cols-5').find('tbody')
         opps = table.find_all('tr')
-        print('now scraping ', len(opps), 'opportunities')
         for opp in opps:
             title = opp.find('td',
                              class_='views-field views-field-title').find('div',
@@ -255,11 +242,14 @@ def pfizer(rows):
                 if link:
                     link = link['href']
                     break
-            data.append(
-                (title, "Pfizer", desc,
-                 datetime.strptime(due_date, "%B %d, %Y").strftime("%Y-%m-%d"),
-                 link, True)
-                )
+            data.append({
+                "name": title, 
+                "org": "Pfizer", 
+                "desc": desc,
+                "deadline": datetime.strptime(due_date, "%B %d, %Y").strftime("%Y-%m-%d"),
+                "link": link, 
+                "grant": True
+            })
 
     driver = webdriver.Firefox()
     driver.get("https://pfizer.com/about/programs-policies/grants/competitive-grants")
@@ -274,12 +264,10 @@ def pfizer(rows):
     while True:
         next_button = driver.find_element(By.XPATH,
                                           '//a[@rel="next"]')
-        if next_button.get_attribute('aria-disabled') == 'true':
-            print("no pages after the one that's already done")
+        if next_button.get_dom_attribute('aria-disabled') == 'true':
             break
         driver.execute_script('arguments[0].scrollIntoView(true);', next_button)
         driver.execute_script('arguments[0].click();', next_button)
-        print('moving to the next page')
         WebDriverWait(driver, 10).until(
             expected_conditions.presence_of_element_located((
                 By.CLASS_NAME, 'cols-5'))
@@ -290,9 +278,9 @@ def pfizer(rows):
         time.sleep(2)
         
     driver.quit()
-    rows.append(data)
+    for item in data:
+        rows.append(item)
             
-
 # Robinson Foundation
 def robinson(data):
     response = requests.get("https://www.robinsonfdn.org/grant-requirements")
@@ -331,8 +319,7 @@ def winn(data):
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": "https://winnawards.org/winn-cda/",
         "grant": True
-    })
-                
+    })           
 
 # May & Victoria Dreyfus Foundation
 def mvdreyfus(data):
@@ -403,10 +390,9 @@ def ampsych(rows):
         except Exception as e:
             break
     driver.quit()
-    rows.append(data)
+    for item in data:
+        rows.append(item)
     
-    
-
 # Virginia Sargeant Reynolds Foundation
 def vsrf(data):
     now = datetime.now()

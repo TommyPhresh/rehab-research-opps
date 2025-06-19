@@ -1,4 +1,4 @@
-from private_updaters import *
+from private_updaters import updaters as privates
 from gov_updaters import *
 from functools import reduce
 
@@ -31,7 +31,8 @@ def update():
 
 def get_data():
     data = []
-    privates = private_updaters_all
+    for api in privates:
+        api(data)
     publics = gov_updaters_all
     result = reduce(lambda f, func: func(f), privates, data)
     return reduce(lambda f, func: func(f), publics, result)
