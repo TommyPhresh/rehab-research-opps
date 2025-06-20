@@ -1,66 +1,100 @@
+import logging 
 import pandas as pd
-import os, time
-from constants import *
-import trials, grants, nih, nsf, specialty_model
+from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 
-# returns dataframe with all clinical trials retrieved from PM&R-specific
-# search terms in dashboard format
-def update_clinical_trials():
-    df = pd.DataFrame()
-    for condition in search_conditions:
-        df = df._append(
-            trials.trials_to_universal_format(
-                trials.search_clinical_trials(
-                    condition, True)))
-    for intervention in search_interventions:
-        df = df._append(trials.trials_to_universal_format(trials.search_clinical_trials(intervention, False)))
-
-    return df
-
-# returns dataframe with all grants retrieved from PM&R-specific
-# search terms in dashboard format 
-def update_grants():
-    df = pd.DataFrame()
-    for term in search_terms:
-        data = grants.grants_search(term)
-        if (not isinstance(data, int)):
-            df = df._append(grants.grants_to_universal_format(data))
-
-    return df
+from constants import REFRESH_INTERVAL
+from private_updaters import updaters as privates
+from main import conn, model
+# from gov_updaters import updaters as publics 
 
 
-def update_nih():
-    os.chdir("C:\\Users\\Student\\Documents\\Projects\\rehab-research-opps")
-    if os.path.isfile("NIH_Guide_Results.csv"):
-        os.remove("NIH_Guide_Results.csv")
+"""
+Cache using parquet
+create is_fresh fn to check if its been enough time to update again
+create rebuild_cache fn to refresh cache
+create get_data fn to return a new list of dicts every time period
 
-    print("Navigate to the following URL: https://grants.nih.gov/funding/nih-guide-for-grants-and-contracts")
+call the get_data fn (which has cache check in it)
+this is super cheap 99% of the time
 
-# returns dataframe with all NIH opportunities retrieved in dashboard format
-def update_nih2():
-    return nih.nih_to_universal_format()
+use scheduler and add a job such that each period cache is refreshed
 
-# returns dataframe with all NSF opportunities retrieved in dashboard format
-def update_nsf():
-    os.chdir("C:\\Users\\Student\\Downloads")
-    if os.path.isfile("nsf_funding.csv"):
-        os.remove("nsf_funding.csv")
+call inside duckdb with original query 
+"CREATE TABLE_NAME VIEW table AS SELECT ..."
+"REFRESH TABLE_NAME VIEW table
 
-    nsf.scrape_nsf()
-    print("Click 'Save' on the download in top right")
-    time.sleep(10)
-    return nsf.nsf_to_universal_format()
+Pass to Jinja the same way I've been doing except Parquet not csv
+"""
 
-# combines all 4 sources into one CSV for clinician processing    
+# FORMAT
+    # name - award name
+    # org - sponsoring organization
+    # desc - brief description
+    # deadline - due date
+    # link - URL
+    # grant - T/F 
+# 
 def update():
-    # create one central csv
-    df = update_clinical_trials()
-    df = df._append(update_grants())
-    update_nih()
-    time.sleep(120)
-    df = df._append(update_nih2())
-    df = df._append(update_nsf())
-    df = df.drop_duplicates()
-    # get specialty column created 
-    labeled_df = specialty_model.begin_model(df)
+    if not is_fresh():
+        data = rebuild_data()
+        update_last_refresh()
+
+# grabs all API results, computes embeddings, and 
+# writes results to a Parquet file on server
+def rebuild_data(dest='data.parquet'):
+    # grab all API results
+    data = get_data()
+    # compute embeddings
+    df = pd.DataFrame(data)
+    conn.execute("CREATE TABLE documents AS SELECT * FROM df")
+    conn.execute("ALTER TABLE documents ADD embedding FLOAT[1024]")
+    conn.execute("""
+    UPDATE documents
+    SET embedding = vectorize(name || ' ' "desc")
+    WHERE embedding IS NULL
+    """)
+
+    # save to Parquet
+    save_to_parquet(data, dest)
+
+    return data
+
+    
+# updates last refresh timestamp
+def update_last_refresh(filename='last_refresh.txt'):
+    with open(filename, 'w') as f:
+        f.write(datetime.now().isoformat())
+
+# reads last refresh timestamp if available
+def get_last_refresh(filename='last_refresh.txt'):
+    try: 
+        with open(filename, 'r') as f:
+            return datetime.fromisoformat(f.read().strip())
+    except Exception: 
+        return datetime.min
+
+# checks time since last refresh
+def is_fresh(interval=REFRESH_INTERVAL):
+    last_refresh = get_last_refresh()
+    return (datetime.now() - last_refresh) < interval
+
+# converts list of dicts to parquet file 
+# for compressed storage on server
+def save_to_parquet(filename='data.parquet'):
+    conn.execute(f"COPY documents TO '{filename}' (FORMAT 'parquet');")
+
+# calls all updaters, public and private, then appends
+# their results into one list of dicts
+def get_data():
+    data = []
+    for api in privates:
+        try: 
+            api(data)
+        except: pass
+    # for api in publics: 
+        # api(data)
+    return data
+
 

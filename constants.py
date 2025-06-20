@@ -1,3 +1,5 @@
+from datetime import timedeltas
+
 # clinical trials constants 
 trials_url = "https://clinicaltrials.gov/api/v2/studies"
 trials_format = "csv"
@@ -105,3 +107,5 @@ specialty_queries = {
     "Spasticity": {"threshold": 0.63, "definition": "Spasticity is an abnormal increase in muscle tone due to a central nervous system disease. Symptoms include: abnormal increase in muscle tone (stiff, tight, painful), difficulty moving joints or relaxing muscles, overactive reflexes, muscle spasms or abnormal movements, limited or loss of range of motion. Treatments include physical or occupational therapy, bracing/orthotics, oral medication, botulinum toxin injections, adult intrathecal baclofen pump, and surgical interventions such as tendon lengthening."},
     "General": {"threshold": 0.61, "definition": "These are general administrative or non-specific awards which provide funding for researchers to put where most needed. Examples may include: upgrading technology available to researchers, funding for increased support staff for researchers, and more. These are specifically to assist researchers in their projects, but are not tied down to any one project."}
 }
+
+REFRESH_INTERVAL = timedelta(months=1)

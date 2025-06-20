@@ -1,0 +1,7 @@
+{% macro help_button(button_text, help_content) %}
+<div class="button-help-wrapper">
+ <button class="main-button">{{ button_text }}</button> 
+ <span class="question-mark">?</span>
+ <div class="help-text">{{ help_content }} </div>
+</div> 
+{% endmacro %}

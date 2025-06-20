@@ -1,0 +1,38 @@
+/* alternate between white and gray */ 
+#results tbody tr:nth-child(even) {
+ background-color: #e5e5e5;
+} 
+
+.brief-description.expanded {
+ white-space: normal;
+}
+
+.brief-description {
+ overflow: hidden;
+ text-overflow: ellipsis;
+} 
+
+.pagination {
+ display: flex;
+ justify-content: center;
+ margin-top: 20px;
+}
+
+.pagination a {
+ margin: 0 5px; 
+ padding: 8px 16px; 
+ text-decoration: none;
+ color: #007bff;
+ border: 1px solid #ddd;
+ border-radius: 4px;
+}
+
+.pagination a.active {
+ background-color: #007bff;
+ color: white; 
+ border: 1px solid #007bff;
+} 
+ 
+.pagination a:hover {
+ background-color: #ddd;
+}

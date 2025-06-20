@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}<title>Search Results</title>{% endblock %}
+{% block head_extra %}
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/search_results.css') }}">
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">
+ </script>
+{% endblock %}
+
+{% block content %}
+<h1>Showing {{ length }} results for "{{ query }}"</h1>
+
+<div> 
+ <label for="order_criteria">Sort by:</label>
+ <select id="order_criteria">
+  <option value="similarity">Relevance</option>
+  <option value="due_date">Due Date</option>
+ </select>
+
+ <label for="order_asc">Order:</label>
+ <select id="order_asc">
+  <option value="DESC">Descending</option>
+  <option value="ASC">Ascending</option>
+ </select>
+</div>
+
+<table id="results">
+ <thead>
+  <tr>
+   <th style="width: 25%">Award Name</th>
+   <th style="width: 20%">Organization</th>
+   <th style="width: 10%">Due Date</th>
+   <th style="width: 45%">Brief Description</th>
+  </tr>
+ </thead>
+ <tbody> 
+  {% for result in results %} 
+   <tr data-similarity="{{ result[1] }}" data-full-description="{{ result[4] }}">
+    <td>{{ result[0] }}</td>
+    <td>{{ result[2] }}</td>
+    <td>{{ result[3] }}</td>
+    <td class="brief-description">{{ result[4][:100] + "..." }}</td>
+   </tr>
+  {% endfor %}
+ </tbody>
+</table>
+
+<input type="hidden" id="total_pages" value="{{ total_pages }}">
+
+<div class="pagination" id = "pagination">
+ <a href="#" class="prev">&laquo; Previous</a>
+ <span class="page-numbers">Page 1 of {{ total_pages }}</span>
+ <a href="#" class="next">Next &raquo;</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+ <script src="{{ url_for('static', filename='js/search_results.js') }}"></script>
+{% endblock %}
