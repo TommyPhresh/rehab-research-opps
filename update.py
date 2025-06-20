@@ -3,11 +3,12 @@ import pandas as pd
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from constants import REFRESH_INTERVAL
 
+from constants import REFRESH_INTERVAL
 from private_updaters import updaters as privates
+from main import conn, model
 # from gov_updaters import updaters as publics 
-from functools import reduce
+
 
 """
 Cache using parquet
@@ -46,6 +47,14 @@ def rebuild_data(dest='data.parquet'):
     # grab all API results
     data = get_data()
     # compute embeddings
+    df = pd.DataFrame(data)
+    conn.execute("CREATE TABLE documents AS SELECT * FROM df")
+    conn.execute("ALTER TABLE documents ADD embedding FLOAT[1024]")
+    conn.execute("""
+    UPDATE documents
+    SET embedding = vectorize(name || ' ' "desc")
+    WHERE embedding IS NULL
+    """)
 
     # save to Parquet
     save_to_parquet(data, dest)
@@ -73,9 +82,8 @@ def is_fresh(interval=REFRESH_INTERVAL):
 
 # converts list of dicts to parquet file 
 # for compressed storage on server
-def save_to_parquet(data, filename='data.parquet'):
-    df = pd.DataFrame(data)
-    df.to_parquet(filename, engine='pyarrow')
+def save_to_parquet(filename='data.parquet'):
+    conn.execute(f"COPY documents TO '{filename}' (FORMAT 'parquet');")
 
 # calls all updaters, public and private, then appends
 # their results into one list of dicts

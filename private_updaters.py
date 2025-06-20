@@ -13,33 +13,33 @@ updaters = [
     ]
 
 # American Heart Association
-"""
-def aha():
-    link = "https://professional.heart.org/en/research-programs/aha-funding-opportunities"
-    driver = webdriver.Firefox()
-    driver.get(link)
-    data = []
-    WebDriverWait(driver, 10).until(
-        expected_conditions.presence_of_element_located((
-            By.CLASS_NAME, 'phd-shadow-box'))
-        )
-    categories = soup.find_all('div', class_='phd-shadow-box')
-    org = "American Heart Association"
-    date_pattern = r"([A-za-z]+), ([A-za-z]+) (\d{1,2}), (\d{4})"
-    for category in categories:
-        name = category.find('h2').text.strip()
-        if (name == "Investigator-initiated Research Opportunities"):
-            table = category.find('table', class_='table table-striped').find('tbody').find_all('tr')
-            for row in table:
-                pass
-        elif (name == "Topic-focused Funding Opportunities"):
-            pass
-        elif (name == "Data Science Grants"):
-            pass
-        elif (name == "AHA Registry Research"):
-            pass
-    return data
-"""
+
+#def aha():
+#    link = "https://professional.heart.org/en/research-programs/aha-funding-opportunities"
+#    driver = webdriver.Firefox()
+#    driver.get(link)
+#    data = []
+#    WebDriverWait(driver, 10).until(
+#        expected_conditions.presence_of_element_located((
+#            By.CLASS_NAME, 'phd-shadow-box'))
+#        )
+#    categories = soup.find_all('div', class_='phd-shadow-box')
+#    org = "American Heart Association"
+#    date_pattern = r"([A-za-z]+), ([A-za-z]+) (\d{1,2}), (\d{4})"
+#    for category in categories:
+#        name = category.find('h2').text.strip()
+#        if (name == "Investigator-initiated Research Opportunities"):
+#            table = category.find('table', class_='table table-striped').find('tbody').find_all('tr')
+#            for row in table:
+#                pass
+#        elif (name == "Topic-focused Funding Opportunities"):
+#            pass
+#        elif (name == "Data Science Grants"):
+#            pass
+#        elif (name == "AHA Registry Research"):
+#            pass
+#    return data
+
 
 # Tomberg Family Philanthropies
 def tomberg(data):
@@ -147,7 +147,64 @@ def beckman(data):
 def alpert(data):
     link1 = "https://www.warrenalpertfoundation.org/grantees"
     link2 = "https://www.warrenalpertfoundation.org/awards"
-    now = datetime.now()
+   # American Psychological Foundation
+def ampsych(rows):
+    # get all opps from a page
+    def extract_opps(soup, data):
+        grid = soup.find('div', class_='grid')
+        opps = grid.find_all('a')
+        for opp in opps:
+            link = opp['href']
+            title = opp.find('h4').text.strip()
+            desc = opp.find('div',
+                            class_='text-lg text-gray-900').find('p').text.strip()
+            due_date = opp.find('div',
+                                class_='transition-all duration-150 mt-3 text-gray-600 text-lg').text.strip()
+            due_date = due_date.replace("Deadline: ", "")
+            data.append({
+                "name": title,
+                "org": "American Psychological Foundation",
+                "desc": desc,
+                "deadline": due_date,
+                "link": link, "grant": True
+                })
+
+    # meat of scraper - webdriver
+    driver = webdriver.Firefox()
+    driver.get("https://ampsychfdn.org/funding/")
+    data = []
+    WebDriverWait(driver, 10).until(
+        expected_conditions.presence_of_element_located((
+            By.CLASS_NAME, 'grid'))
+        )
+    # scrape first page
+    page_src = driver.page_source
+    soup = BeautifulSoup(page_src, 'html.parser')
+    extract_opps(soup, data)
+    # loop through all other pages
+    while True:
+        try:
+            next_button = WebDriverWait(driver, 10).until(
+                expected_conditions.element_to_be_clickable((
+                    By.XPATH,
+                    "//button[contains(text(), 'Next')]"))
+                )
+            driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+            driver.execute_script("arguments[0].click();", next_button)
+            WebDriverWait(driver, 10).until(
+                expected_conditions.presence_of_element_located((
+                    By.CLASS_NAME, 'grid'))
+                )
+            page_src = driver.page_source
+            soup = BeautifulSoup(page_src, 'html.parser')
+            extract_opps(soup, data)
+            time.sleep(2)
+        except Exception as e:
+            break
+        
+    driver.quit()
+    for item in data:
+        rows.append(item) now = datetime.now()
     dues = [datetime(1999, 1, 15), datetime(1999, 4, 15),
             datetime(1999, 7, 15), datetime(1999, 10, 15)]
     due_date1, due_date2 = None, None
@@ -354,8 +411,13 @@ def ampsych(rows):
             due_date = opp.find('div',
                                 class_='transition-all duration-150 mt-3 text-gray-600 text-lg').text.strip()
             due_date = due_date.replace("Deadline: ", "")
-            data.append((title, "American Psychological Foundation",
-                         desc, due_date, link, True))
+            data.append({
+                "name": title,
+                "org": "American Psychological Foundation",
+                "desc": desc,
+                "deadline": due_date,
+                "link": link, "grant": True
+                })
 
     # meat of scraper - webdriver
     driver = webdriver.Firefox()
@@ -389,6 +451,7 @@ def ampsych(rows):
             time.sleep(2)
         except Exception as e:
             break
+        
     driver.quit()
     for item in data:
         rows.append(item)

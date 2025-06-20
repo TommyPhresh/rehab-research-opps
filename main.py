@@ -32,11 +32,11 @@ conn.create_function("vectorize",
                 lambda sentence: model.encode(sentence)["dense_vecs"],
                 [VARCHAR], 'FLOAT[1024]')
 # scheduler configs & startup
-logging.basicConfig(level=logging.INFO)
-scheduler = BackgroundScheduler()
-trigger = CronTrigger(day=15, hour=2, minute=0)
-scheduler.add_job(update, trigger)
-scheduler.start()
+# logging.basicConfig(level=logging.INFO)
+# scheduler = BackgroundScheduler()
+# trigger = CronTrigger(day=15, hour=2, minute=0)
+# scheduler.add_job(update, trigger)
+# scheduler.start()
 
 
 @login_manager.user_loader
