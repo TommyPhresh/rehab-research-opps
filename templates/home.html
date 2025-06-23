@@ -2,14 +2,14 @@
 
 {% block head_extra %}
  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
- <link rel="loading" href="{{ url_for('static', filename='css/loading.css') }}">
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/loading.css') }}">
 {% endblock %}
 
 {% block content %}
- <div id="loader"></div>
+ <div id="loader" style="display: none;"></div>
  <h1 style="text-align: center; font-size: 48px;">Funding Control Panel</h1>
 
- <div class="homepage-wrapper">
+ <div class="homepage-wrapper" id='homepage-wrapper'>
   <div class="left-container">
    <h2 style="font-size: 24px;">Custom search</h2>
    
@@ -40,7 +40,7 @@
   document.getElementById('clinician-search').addEventListener('submit', function(event) {
    event.preventDefault();
    showLoader(); 
-   this.submit();
+   event.target.submit();
   });
  </script>
  <script src="{{ url_for('static', filename='js/help_button.js') }}"></script>
