@@ -147,7 +147,55 @@ def beckman(data):
 def alpert(data):
     link1 = "https://www.warrenalpertfoundation.org/grantees"
     link2 = "https://www.warrenalpertfoundation.org/awards"
-   # American Psychological Foundation
+    now = datetime.now()
+    dues = [datetime(1999, 1, 15), datetime(1999, 4, 15),
+            datetime(1999, 7, 15), datetime(1999, 10, 15)]
+    due_date1, due_date2 = None, None
+    for i in range(len(dues)):
+        if (now.month <= dues[i].month):
+            due_date1 = datetime(now.year, dues[i].month, dues[i].day)
+            break
+    row1 = {
+        "name": "Warren Alpert Foundation: grants over $25,000",
+        "org": "Warren Alpert Foundation",
+        "desc": "The Warren Alpert Foundation accepts grants for medical research, medical education, and in some cases general education and basic human services grants.",
+        "deadline": due_date1.strftime("%Y-%m-%d"),
+        "link": link1, "grant": True
+    }
+    row2 = None
+    if (now.month < 11):
+        due_date2 = datetime(now.year, 11, 1)
+    else:
+        due_date2 = datetime(now.year + 1, 11, 1)
+    row2 = {
+        "name": "The Warren Alpert Distinguished Scholar Award for Neuroscience",
+        "org": "Warren Alpert Foundation",
+        "desc": "These transitional awards are to enable a postdoctoral researcher to advance to become a full-time faculty member at the Assistant Professor level or higher and to promote the development of a laboratory program that will lead to independent funding. The medical school, research institute, or academic hospital appointing the scholar will be awarded $200,000 annually for two years to cover salary, lab costs, and related expenses. Under certain circumstances, the awardee may transfer funding to support their beginning faculty position. Indirect costs of up to 15% of direct costs may be included in the $200,000.",
+        "deadline": due_date2.strftime("%Y-%m-%d"),
+        "link": link2, "grant": True
+    }
+    data.append(row1)
+    data.append(row2)    
+
+# Mutual of America
+def mutual(data):
+    link = "https://www.mutualofamerica.com/about-us/community-building"
+    now = datetime.now()
+    if (now.month < 7) and (now.day + 14 <= 30):
+        due_date = datetime(now.year, 7, 1)
+    else:
+        due_date = datetime(now.year + 1, 7, 1)
+    data.append({
+        "name": "Mutual of America Foundation Community Partnership Award",
+        "org": "Mutual of America Foundation",
+        "desc": """The Mutual of America Foundation Community Partnership Award recognizes outstanding nonprofit organizations in the United States that have shown exemplary leadership by facilitating partnerships with public, private, or social sector leaders who are working together as equal partners, not as donors and recipients, to build a cohesive community that serves as a model for collaborating with others for the greater good.
+        Each year, the Mutual of America Foundation sponsors a national competition in which hundreds of organizations demonstrate the value of their partnership to the communities they serve, their ability to be replicated by others, and their capacity to stimulate new approaches to addressing significant social issues.
+        """,
+        "deadline": due_date.strftime("%Y-%m-%d"),
+        "link": link, "grant": True
+    })
+
+# American Psychological Foundation
 def ampsych(rows):
     # get all opps from a page
     def extract_opps(soup, data):
@@ -204,53 +252,7 @@ def ampsych(rows):
         
     driver.quit()
     for item in data:
-        rows.append(item) now = datetime.now()
-    dues = [datetime(1999, 1, 15), datetime(1999, 4, 15),
-            datetime(1999, 7, 15), datetime(1999, 10, 15)]
-    due_date1, due_date2 = None, None
-    for i in range(len(dues)):
-        if (now.month <= dues[i].month):
-            due_date1 = datetime(now.year, dues[i].month, dues[i].day)
-            break
-    row1 = {
-        "name": "Warren Alpert Foundation: grants over $25,000",
-        "org": "Warren Alpert Foundation",
-        "desc": "The Warren Alpert Foundation accepts grants for medical research, medical education, and in some cases general education and basic human services grants.",
-        "deadline": due_date1.strftime("%Y-%m-%d"),
-        "link": link1, "grant": True
-    }
-    row2 = None
-    if (now.month < 11):
-        due_date2 = datetime(now.year, 11, 1)
-    else:
-        due_date2 = datetime(now.year + 1, 11, 1)
-    row2 = {
-        "name": "The Warren Alpert Distinguished Scholar Award for Neuroscience",
-        "org": "Warren Alpert Foundation",
-        "desc": "These transitional awards are to enable a postdoctoral researcher to advance to become a full-time faculty member at the Assistant Professor level or higher and to promote the development of a laboratory program that will lead to independent funding. The medical school, research institute, or academic hospital appointing the scholar will be awarded $200,000 annually for two years to cover salary, lab costs, and related expenses. Under certain circumstances, the awardee may transfer funding to support their beginning faculty position. Indirect costs of up to 15% of direct costs may be included in the $200,000.",
-        "deadline": due_date2.strftime("%Y-%m-%d"),
-        "link": link2, "grant": True
-    }
-    data.append(row1)
-    data.append(row2)    
-
-# Mutual of America
-def mutual(data):
-    link = "https://www.mutualofamerica.com/about-us/community-building"
-    now = datetime.now()
-    if (now.month < 7) and (now.day + 14 <= 30):
-        due_date = datetime(now.year, 7, 1)
-    else:
-        due_date = datetime(now.year + 1, 7, 1)
-    data.append({
-        "name": "Mutual of America Foundation Community Partnership Award",
-        "org": "Mutual of America Foundation",
-        "desc": """The Mutual of America Foundation Community Partnership Award recognizes outstanding nonprofit organizations in the United States that have shown exemplary leadership by facilitating partnerships with public, private, or social sector leaders who are working together as equal partners, not as donors and recipients, to build a cohesive community that serves as a model for collaborating with others for the greater good.
-        Each year, the Mutual of America Foundation sponsors a national competition in which hundreds of organizations demonstrate the value of their partnership to the communities they serve, their ability to be replicated by others, and their capacity to stimulate new approaches to addressing significant social issues.
-        """,
-        "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
-    })
+        rows.append(item)
 
 # Medline Industries
 def medline(data):
@@ -396,65 +398,6 @@ def mvdreyfus(data):
             "link": "https://mvdreyfusfoundation.org/application-guidelines",
             "grant": True
         })
-
-# American Psychological Foundation
-def ampsych(rows):
-    # get all opps from a page
-    def extract_opps(soup, data):
-        grid = soup.find('div', class_='grid')
-        opps = grid.find_all('a')
-        for opp in opps:
-            link = opp['href']
-            title = opp.find('h4').text.strip()
-            desc = opp.find('div',
-                            class_='text-lg text-gray-900').find('p').text.strip()
-            due_date = opp.find('div',
-                                class_='transition-all duration-150 mt-3 text-gray-600 text-lg').text.strip()
-            due_date = due_date.replace("Deadline: ", "")
-            data.append({
-                "name": title,
-                "org": "American Psychological Foundation",
-                "desc": desc,
-                "deadline": due_date,
-                "link": link, "grant": True
-                })
-
-    # meat of scraper - webdriver
-    driver = webdriver.Firefox()
-    driver.get("https://ampsychfdn.org/funding/")
-    data = []
-    WebDriverWait(driver, 10).until(
-        expected_conditions.presence_of_element_located((
-            By.CLASS_NAME, 'grid'))
-        )
-    # scrape first page
-    page_src = driver.page_source
-    soup = BeautifulSoup(page_src, 'html.parser')
-    extract_opps(soup, data)
-    # loop through all other pages
-    while True:
-        try:
-            next_button = WebDriverWait(driver, 10).until(
-                expected_conditions.element_to_be_clickable((
-                    By.XPATH,
-                    "//button[contains(text(), 'Next')]"))
-                )
-            driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-            driver.execute_script("arguments[0].click();", next_button)
-            WebDriverWait(driver, 10).until(
-                expected_conditions.presence_of_element_located((
-                    By.CLASS_NAME, 'grid'))
-                )
-            page_src = driver.page_source
-            soup = BeautifulSoup(page_src, 'html.parser')
-            extract_opps(soup, data)
-            time.sleep(2)
-        except Exception as e:
-            break
-        
-    driver.quit()
-    for item in data:
-        rows.append(item)
     
 # Virginia Sargeant Reynolds Foundation
 def vsrf(data):

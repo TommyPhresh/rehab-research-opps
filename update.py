@@ -1,8 +1,5 @@
-import logging 
 import pandas as pd
 from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 
 from constants import REFRESH_INTERVAL
 from private_updaters import updaters as privates
@@ -38,8 +35,11 @@ Pass to Jinja the same way I've been doing except Parquet not csv
 # 
 def update():
     if not is_fresh():
-        data = rebuild_data()
+        logging.log(logging.INFO, 'Not fresh')
+        rebuild_data()
         update_last_refresh()
+    else:
+        logging.log(logging.INFO, 'Fresh')
 
 # grabs all API results, computes embeddings, and 
 # writes results to a Parquet file on server
@@ -48,18 +48,17 @@ def rebuild_data(dest='data.parquet'):
     data = get_data()
     # compute embeddings
     df = pd.DataFrame(data)
+    conn.execute("DROP TABLE documents")
     conn.execute("CREATE TABLE documents AS SELECT * FROM df")
     conn.execute("ALTER TABLE documents ADD embedding FLOAT[1024]")
     conn.execute("""
     UPDATE documents
-    SET embedding = vectorize(name || ' ' "desc")
+    SET embedding = vectorize(name || ' ' || "desc")
     WHERE embedding IS NULL
     """)
 
     # save to Parquet
-    save_to_parquet(data, dest)
-
-    return data
+    save_to_parquet(dest)
 
     
 # updates last refresh timestamp
@@ -96,5 +95,4 @@ def get_data():
     # for api in publics: 
         # api(data)
     return data
-
 

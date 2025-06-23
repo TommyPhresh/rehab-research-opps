@@ -1,13 +1,15 @@
 from flask import Flask, render_template, redirect, url_for, jsonify, request
-import flask_ngrok, duckdb, FlagEmbedding, dateutil
+import flask_ngrok, duckdb, FlagEmbedding, dateutil, logging
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from duckdb.typing import VARCHAR, FLOAT
 from flask_caching import Cache
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 from user import User, users
 from constants import specialty_queries
 from db import basic_query
-from update import update
+
 
 app = Flask(__name__)
 # login configs
@@ -31,13 +33,12 @@ FROM read_csv('C:\\Users\\trich6\\Desktop\\rehab-frontend\\embedded_documents.cs
 conn.create_function("vectorize",
                 lambda sentence: model.encode(sentence)["dense_vecs"],
                 [VARCHAR], 'FLOAT[1024]')
-# scheduler configs & startup
-# logging.basicConfig(level=logging.INFO)
-# scheduler = BackgroundScheduler()
-# trigger = CronTrigger(day=15, hour=2, minute=0)
-# scheduler.add_job(update, trigger)
-# scheduler.start()
-
+# scheduler configs and setup
+logging.basicConfig(level=logging.INFO)
+scheduler = BackgroundScheduler()
+trigger = CronTrigger(day=15, hour=2, minute=0)
+scheduler.add_job(update, trigger)
+scheduler.start()
 
 @login_manager.user_loader
 def load_user(user_id):
