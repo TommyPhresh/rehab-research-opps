@@ -35,11 +35,13 @@
  </thead>
  <tbody> 
   {% for result in results %} 
-   <tr data-similarity="{{ result[1] }}" data-full-description="{{ result[4] }}">
-    <td>{{ result[0] }}</td>
-    <td>{{ result[2] }}</td>
+   <tr data-similarity="{{ result[4] }}" data-full-description="{{ result[2] }}" data-grant="{{ result[6] }}">
+    <td> 
+     <a href="{{ result[5] }}" target="_blank"> {{ result[0] }}</a>
+    </td>
+    <td>{{ result[1] }}</td>
     <td>{{ result[3] }}</td>
-    <td class="brief-description">{{ result[4][:100] + "..." }}</td>
+    <td class="brief-description">{{ result[2][:100] + "..." }}</td>
    </tr>
   {% endfor %}
  </tbody>

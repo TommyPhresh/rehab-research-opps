@@ -6,11 +6,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
-# Collection of all updaters for private foundations
-updaters = [
-    tomberg, rmjsf, mli, keck, hanger, beckman, alpert,
-    mutual, medline, pfizer, robinson, winn, mvdreyfus, ampsych, vsrf, tmcity
-    ]
 
 # American Heart Association
 
@@ -48,13 +43,14 @@ def tomberg(data):
     if (now.month <= 7) and (now.month <= 7):
         due_date = datetime(now.year, 7, 21)
     else: due_date = datetime(now.year + 1, 7, 21)
-    data.append({
+    item = {
         "name": "Tomberg Family Philanthropies",
         "org": "Tomberg Family Foundation, Tomberg & Brecher Charitable Funds",
         "desc": "The Tomberg Family Philanthropies only makes grants to 501(c)(3) nonprofit organizations based in the United States and certain government entities or public institutions in the United States such as public schools and universities. We fund projects worldwide that are run by these organizations. Our grants normally range from $5,000 to $20,000.",
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": link, "grant": True
-    })
+    }
+    data.append(item)
 
 # Robert & Mary Jane Smith Foundation
 def rmjsf(data):
@@ -63,13 +59,14 @@ def rmjsf(data):
     if (now.month < 9):
         due_date = datetime(now.year, 9, 1)
     else: due_date = datetime(now.year + 1, 9, 1)
-    data.append({
+    item = {
         "name": "Robert & Mary Jane Smith Foundation Grant",
         "org": "Robert & Mary Jane Smith Foundation",
         "desc": "Founded in 2017, the Robert and Mary Jane Smith Foundation is dedicated to supporting nonprofit institutions based in the United States. Our foundation prioritizes support for the development and education of young people, medical institutions and research, cultural and faith-based organizations, and humanitarian efforts.",
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": link, "grant": True
-        })
+        }
+    data.append(item)
 
 # Mind and Life Institute
 def mli(data):
@@ -78,7 +75,7 @@ def mli(data):
     if (now.month < 9):
         due_date = datetime(now.year, 9, 1)
     else: due_date = datetime(now.year + 1, 9, 1)
-    data.append({
+    item = {
         "name": "Mind & Life Francisco J. Varela Research Grants",
         "org": "Mind & Life Institute",
         "desc": """The Mind & Life Francisco J. Varela Research Grants - an important and integral component of Mind & Life's support of contemplative scientists and scholars - are based on neuroscientist and philosopher Francisco J. Varela's belief that contemplative practices offer modern science novel, valuable methods for investigating human experience.
@@ -86,7 +83,8 @@ def mli(data):
         Proposals are encouraged across broad domains, including: cognitive science, clinical psychology, education, anthropology, neuroscience, health/medical, social science, and humanities. Preference is given to proposals that incorporate first-person contemplative methods (e.g., introspective investigation and reports on subjective experience) into cognitive, behavioral, physiological, clinical, or socio-cultural research. Preference is also given to proposals that have the potential to contribute to interdisciplinary knowledge and to make connections across different disciplines. This grant program encourages the active collaboration of scientists with contemplative scholars/practitioners in all phases of research.""",
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": link, "grant": True
-        })
+        }
+    data.append(item)
 
 # Keck Foundation
 def keck(data):
@@ -97,13 +95,14 @@ def keck(data):
     elif (now.month < 11):
         due_date = datetime(now.year, 11, 1)
     else: due_date = datetime(now.year + 1, 5, 1)
-    data.append({
+    item = {
         "name": "W. M. Keck Research Program",
         "org": "The W. M. Keck Foundation",
         "desc": "The W. M. Keck Research Program seeks to benefit humanity by supporting Medical Research and Science & Engineering projects that are distinctive and novel in their approach, question the prevailing paradigm, or have the potential to break open new territory in their field.",
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": link, "grant": True
-        })
+        }
+    data.append(item)
 
 # Hanger Foundation
 def hanger(data):
@@ -112,21 +111,22 @@ def hanger(data):
     if (now.month < 4):
         due_date = datetime(now.year, 4, 1)
     else: due_date = datetime(now.year + 1, 4, 1)
-    data.append(
-        {
+    row1 = {
             "name": "Hanger Foundation Empowerment Grant",
             "org": "Hanger Foundation",
             "desc": "Supporting nonprofit organizations that serve people with physical challenges",
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": link, "grant": True
-        })
-    data.append({
+        }
+    row2 = {
             "name": "Hanger Foundation Veteran Grant",
             "org": "Hanger Foundation",
             "desc": "Supporting nonprofit organizations that serve our veterans.",
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": link, "grant": True
-        })
+        }
+    data.append(row1)
+    data.append(row2)
 
 # Beckman Foundation
 def beckman(data):
@@ -135,13 +135,14 @@ def beckman(data):
     if (now.month < 8):
         due_date = datetime(now.year, 8, 1)
     else: due_date = datetime(now.year + 1, 8, 1)
-    data.append({
+    item = {
         "name": "Beckman Young Investigator Program",
         "org": "The Arnold & Mabel Beckman Foundation",
         "desc": "The Beckman Young Investigator (BYI) Program provides research support to the most promising young faculty members in the early stages of their academic careers in the chemical and life sciences, particularly to foster the invention of methods, instruments, and materials that will open up new avenues of research in science.",
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": link, "grant": True
-        })
+        }
+    data.append(item)
 
 # Warren Alpert Foundation
 def alpert(data):
@@ -162,7 +163,6 @@ def alpert(data):
         "deadline": due_date1.strftime("%Y-%m-%d"),
         "link": link1, "grant": True
     }
-    row2 = None
     if (now.month < 11):
         due_date2 = datetime(now.year, 11, 1)
     else:
@@ -175,7 +175,7 @@ def alpert(data):
         "link": link2, "grant": True
     }
     data.append(row1)
-    data.append(row2)    
+    data.append(row2)
 
 # Mutual of America
 def mutual(data):
@@ -185,7 +185,7 @@ def mutual(data):
         due_date = datetime(now.year, 7, 1)
     else:
         due_date = datetime(now.year + 1, 7, 1)
-    data.append({
+    item = {
         "name": "Mutual of America Foundation Community Partnership Award",
         "org": "Mutual of America Foundation",
         "desc": """The Mutual of America Foundation Community Partnership Award recognizes outstanding nonprofit organizations in the United States that have shown exemplary leadership by facilitating partnerships with public, private, or social sector leaders who are working together as equal partners, not as donors and recipients, to build a cohesive community that serves as a model for collaborating with others for the greater good.
@@ -193,7 +193,8 @@ def mutual(data):
         """,
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": link, "grant": True
-    })
+    }
+    data.append(item)
 
 # American Psychological Foundation
 def ampsych(rows):
@@ -237,6 +238,7 @@ def ampsych(rows):
                     By.XPATH,
                     "//button[contains(text(), 'Next')]"))
                 )
+            time.sleep(0.5)
             driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
             driver.execute_script("arguments[0].click();", next_button)
             WebDriverWait(driver, 10).until(
@@ -265,14 +267,14 @@ def medline(data):
         if (now.month + 1 <= dues[i].month):
             due_date = datetime(now.year, dues[i].month, dues[i].day)
             break
-        
-    data.append({
+    item = {
         "name": "Medline: Investigator-Initiated Studies Program",
         "org": "Medline Industries",
         "desc": "The IIS program provides support for research that advances scientific and medical knowledge about Medline products and generates promising approaches to medical care. Our support of projects can include direct funding to cover all or a portion of study-related costs, product and safety design input. If the Scientific Review Committee approves an application, execution of an agreement is required for disbursement of funds and/or product, which includes milestones and publishing expectations.",
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": link, "grant": True
-    })
+    }
+    data.append(item)
         
 # Pfizer
 def pfizer(rows):
@@ -351,7 +353,7 @@ def robinson(data):
             due_date = datetime(now.year, 10, 15)
         else:
             due_date = datetime(now.year + 1, 5, 15)
-        data.append({
+        item = {
             "name": "Robinson Foundation Grant",
             "org": "Robinson Foundation",
             "desc": """Founded in 2016, the mission of the Robinson Foundation is to create meaningful impact through giving back to humanity with good nature and generous hearts. We do this as a family-operated foundation, where each memboer of our board is tasked with seeking out areas of need where our contribution can create real change in the lives of those affected.
@@ -360,7 +362,8 @@ def robinson(data):
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": "https://www.robinsonfdn.org/grant-requirements",
             "grant": True
-        })
+        }
+        data.append(item)
 
 # Robert A. Winn Foundation
 def winn(data):
@@ -369,7 +372,7 @@ def winn(data):
         due_date = datetime(now.year, 5, 12)
     else:
         due_date = datetime(now.year + 1, 5, 12)
-    data.append({
+    item = {
         "name": "Robert A. Winn Excellence in Clinical Trials: Career Development Award",
         "org": "Bristol Myers Squibb Foundation",
         "desc": """The Robert A. Winn Excellence in Clinical Trials: Career Development Award (Winn CDA), supported by the Bristol Myers Squibb Foundation, is a 2-yr program designed to support the career development of early-stage investigator physicians who have a demonstrated commitment to transforming and expanding access to the clinical research landscape. They will become community-oriented clinical trialists who will drive improved health outcomes through their research and mentoring. Currently, our clinical research areas include cancer, cardiovascular disease, and immunologic disorders.
@@ -378,7 +381,8 @@ def winn(data):
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": "https://winnawards.org/winn-cda/",
         "grant": True
-    })           
+    }
+    data.append(item)
 
 # May & Victoria Dreyfus Foundation
 def mvdreyfus(data):
@@ -390,14 +394,15 @@ def mvdreyfus(data):
         elif (now < datetime(now.year, 11, 9)):
             due_date = datetime(now.year, 11, 9)
         else: due_date = datetime(now.year + 1, 5, 10)
-        data.append({
+        item = {
             "name": "Max and Victoria Dreyfus Foundation Grant",
             "org": "The Max and Victoria Dreyfus Foundation",
             "desc": "The Foundation does not establish funding priorities on an annual basis, but rather supports worthwhile activities for which an organization has made a compelling case to receive funding. As a result, Foundation staff cannot advise applicants on the appropriateness of one potential submission over another. Instead, we generally suggest that organizations select programs for which they can make their best case for support, and for which a small amount of money can have a large impact.",
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": "https://mvdreyfusfoundation.org/application-guidelines",
             "grant": True
-        })
+        }
+        data.append(item)
     
 # Virginia Sargeant Reynolds Foundation
 def vsrf(data):
@@ -408,7 +413,7 @@ def vsrf(data):
         due_date = datetime(now.year + 1, 5, 1)
     else:
         due_date = datetime(now.year, 5, 1)
-    data.append({
+    item = {
         "name": "Virginia Sargeant Reynolds Foundation Grant",
         "org": "Virginia Sargeant Reynolds Foundation",
         "desc": """Our mission is to support programs, causes, and organizations within Arts, Education, Environment, Health, History, and Humanity, disciplines which resonated with Virginia Reynolds during her lifetime. The Foundation prioritizes support for causes with a connection to the Commonwealth of Virginia and will selectively support broader domestic and global causes within the six focus disciplines. The Foundation also actively seeks to support causes with a connection to current and future generations of the Reynolds family which are consistent with the Foundation's mission.
@@ -417,7 +422,8 @@ def vsrf(data):
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": "https://app.vsrfoundation.com/how-to-apply/",
         "grant": True
-    })
+    }
+    data.append(item)
 
 # TMCity Foundation
 def tmcity(data):
@@ -431,7 +437,7 @@ def tmcity(data):
             due_date = datetime(now.year + 1, 4, 30)
         else:
             due_date = datetime(now.year, 4, 30)
-        data.append({
+        item = {
             "name": "TMCity Foundation: Research",
             "org": "TMCity Foundation",
             "desc": """We believe that mental health presents a critical challenge to our society today, and understanding the brain holds the key. While significant medical achievements have been made treating many physical diseases, there is still so much we don't know about the brain and mental health. With technology and data avaiable as never before, real progress in this field is possible, but it requires our attention and financial commitment.
@@ -441,5 +447,12 @@ def tmcity(data):
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": "https://www.tmcity.org/foundation",
             "grant": True
-        })
+        }
+        data.append(item)
         
+# Collection of all updaters for private foundations
+updaters = [
+    tomberg, rmjsf, mli, keck, hanger, beckman, alpert,
+    mutual, medline, pfizer, robinson, winn, mvdreyfus, ampsych, vsrf, tmcity
+    ]
+

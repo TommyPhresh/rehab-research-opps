@@ -1,29 +1,14 @@
 import pandas as pd
 from datetime import datetime, timedelta
+import logging, duckdb
+from duckdb.typing import VARCHAR, FLOAT
+from flask import current_app
 
 from constants import REFRESH_INTERVAL
 from private_updaters import updaters as privates
-from main import conn, model
+from db import get_db
 # from gov_updaters import updaters as publics 
 
-
-"""
-Cache using parquet
-create is_fresh fn to check if its been enough time to update again
-create rebuild_cache fn to refresh cache
-create get_data fn to return a new list of dicts every time period
-
-call the get_data fn (which has cache check in it)
-this is super cheap 99% of the time
-
-use scheduler and add a job such that each period cache is refreshed
-
-call inside duckdb with original query 
-"CREATE TABLE_NAME VIEW table AS SELECT ..."
-"REFRESH TABLE_NAME VIEW table
-
-Pass to Jinja the same way I've been doing except Parquet not csv
-"""
 
 # FORMAT
     # name - award name
@@ -32,23 +17,34 @@ Pass to Jinja the same way I've been doing except Parquet not csv
     # deadline - due date
     # link - URL
     # grant - T/F 
-# 
-def update():
+# data pipeline
+def update(app):
     if not is_fresh():
-        logging.log(logging.INFO, 'Not fresh')
-        rebuild_data()
-        update_last_refresh()
+        with app.app_context():
+            print('Not fresh')
+            rebuild_data(app)
+            update_last_refresh()
     else:
-        logging.log(logging.INFO, 'Fresh')
+        print('Fresh')
 
 # grabs all API results, computes embeddings, and 
 # writes results to a Parquet file on server
-def rebuild_data(dest='data.parquet'):
+def rebuild_data(app, dest='data.parquet'):
+    conn = duckdb.connect()
+    conn.create_function('vectorize',
+                         lambda sentence: app.model.encode(sentence)['dense_vecs'],
+                         [VARCHAR],
+                         'FLOAT[1024]')
+                         
     # grab all API results
     data = get_data()
     # compute embeddings
     df = pd.DataFrame(data)
-    conn.execute("DROP TABLE documents")
+    df = df.drop_duplicates(subset='name')
+    try:
+        conn.execute("DROP TABLE IF EXISTS documents")
+    except Exception as e:
+        pass
     conn.execute("CREATE TABLE documents AS SELECT * FROM df")
     conn.execute("ALTER TABLE documents ADD embedding FLOAT[1024]")
     conn.execute("""
@@ -58,7 +54,10 @@ def rebuild_data(dest='data.parquet'):
     """)
 
     # save to Parquet
-    save_to_parquet(dest)
+    try:
+        save_to_parquet(conn, dest)
+    finally:
+        conn.close()
 
     
 # updates last refresh timestamp
@@ -81,7 +80,7 @@ def is_fresh(interval=REFRESH_INTERVAL):
 
 # converts list of dicts to parquet file 
 # for compressed storage on server
-def save_to_parquet(filename='data.parquet'):
+def save_to_parquet(conn, filename='data.parquet'):
     conn.execute(f"COPY documents TO '{filename}' (FORMAT 'parquet');")
 
 # calls all updaters, public and private, then appends
@@ -91,8 +90,9 @@ def get_data():
     for api in privates:
         try: 
             api(data)
-        except: pass
+            print(f'{api.__name__}')
+        except Exception as e:
+            print(f'{api.__name__} failed: {e}')
     # for api in publics: 
         # api(data)
     return data
-
