@@ -1,0 +1,12 @@
+.homepage-wrapper {
+ display: flex;
+ justify-content: space-between;
+ align-items: flex-start;
+ padding: 10px;
+}
+.left-container,
+.right-container {
+ width: 60%;
+ padding: 10px; 
+ box-sizing: border-box;
+}

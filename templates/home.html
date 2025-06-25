@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/loading.css') }}">
+{% endblock %}
+
+{% block content %}
+ <div id="loader" style="display: none;"></div>
+ <h1 style="text-align: center; font-size: 48px;">Funding Control Panel</h1>
+
+ <div class="homepage-wrapper" id='homepage-wrapper'>
+  <div class="left-container">
+   <h2 style="font-size: 24px;">Custom search</h2>
+   
+   <form action="/search" method="GET" id="clinician-search">
+    <input id ="searchInput" style="height: 30px; width: 75%;" type="text" name="query" placeholder="Search..." required>
+    <button id="searchButton" style="font-size: 18px;" type="submit">Go!</button>
+   </form>
+  </div>
+  
+  <div class="right-container">
+   <h2 style="font-size: 24px;">OR see results from pre-defined specialties</h2>
+   
+   {% import "components/help_button.html" as hb %}
+   {% for specialty, text in specialties.items() %}
+    {{ hb.help_button(specialty, text["definition"]) }} 
+   {% endfor %}
+   </div> 
+  </div> 
+ </div> 
+{% endblock %}
+{% block scripts %}
+ <script> 
+  function showLoader() {
+   console.log("Loading...");
+   document.getElementById('loader').style.display = 'block';
+   document.getElementById('homepage-wrapper').style.display = 'none';
+  }
+  document.getElementById('clinician-search').addEventListener('submit', function(event) {
+   event.preventDefault();
+   showLoader(); 
+   event.target.submit();
+  });
+ </script>
+ <script src="{{ url_for('static', filename='js/help_button.js') }}"></script>
+{% endblock %}
