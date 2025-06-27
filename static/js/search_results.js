@@ -1,7 +1,8 @@
 let currentPage = 1;
 let updateRowClickHandlers, updatePaginationLinks, updatePaginationSpan, fetchPage;
+const grantCheckbox = document.getElementById('show_trials');
 
-/* listen for changes once results are loaded */
+/* listen for changes to sorting criteria once results are loaded */
 $(document).ready(function() {
  $('#order_criteria, #order_asc').change(function(event) {
   event.preventDefault();
@@ -11,13 +12,24 @@ $(document).ready(function() {
  });
 });
 
+/* listen for checking/unchecking of trials box; on change, 
+   jump back to page 1 */
+grantCheckbox.addEventListener('change', () => {
+ fetchPage(1, $('#order_criteria').val(), $('#order_asc').val());
+});
+
  /* dynamically sort without reloading */
 function sortResults(criteria, ascend) {
+ const showTrials = grantCheckbox.checked;
  $.ajax({
-  url: `search/page/${currentPage}?sort_criteria=${criteria}&ascend=${ascend}`,
+  url: `search/page/${currentPage}`
+     + `?sort_criteria=${criteria}`
+     + `&ascend=${ascend}`
+     + `&show_trials=${showTrials}`,
   method: 'GET',
   success: function(data) {
    $('#results tbody').html($(data).find('#results tbody').html());
+   $('#total_pages').val($(data).find('#total_pages').val());
    updateRowClickHandlers();
    updatePaginationLinks();
    updatePaginationSpan();
@@ -31,12 +43,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
  /* pagination of results */
  fetchPage = function(page, criteria='similarity', ascend='DESC') {
-
+  const showTrials = grantCheckbox.checked;
   $.ajax({ 
-   url: `/search/page/${page}?sort_criteria=${criteria}&ascend=${ascend}`,
+   url: `/search/page/${page}?`
+      + `sort_criteria=${criteria}`
+      + `&ascend=${ascend}`
+      + `&show_trials=${showTrials}`,
    method: 'GET',
    success: function(data) {
     $('#results tbody').html($(data).find('#results tbody').html());
+    $('#total_pages').val($(data).find('#total_pages').val());
     currentPage = page;
     updateRowClickHandlers();
     updatePaginationLinks();

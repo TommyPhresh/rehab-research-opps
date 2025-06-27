@@ -61,6 +61,7 @@ def search():
     user_query = request.args.get('query')
     results = basic_query(conn, user_query)
     display = request.args.get('display')
+    
     cache.set(f'search_results_{user_query}', results)
     cache.set('query', user_query)
     cache.set('display', display)
@@ -72,10 +73,12 @@ def search():
 def search_page_router(page):
     order_criteria = request.args.get("sort_criteria", 'similarity')
     order_asc = request.args.get("ascend", 'DESC')
-    return search_page(page, order_criteria, order_asc)
+    show_trials = request.args.get("show_trials", "true")
+    show_trials = show_trials.lower() in ("1", "true")
+    return search_page(page, order_criteria, order_asc, show_trials)
 
 # pagination & dynamic sorting of results
-def search_page(page, order_criteria, order_asc):
+def search_page(page, order_criteria, order_asc, show_trials):
     conn = get_db()
     user_query = cache.get('query')
     results = cache.get(f"search_results_{user_query}")
@@ -86,7 +89,10 @@ def search_page(page, order_criteria, order_asc):
         results = basic_query(conn, user_query)
         cache.set(f"search_results_{user_query}", results)
 
-    # re-order based on updated sort criteria from user
+    # filter & re-order based on updated sort criteria from user
+    if not show_trials:
+        results = [row for row in results if row[6]]
+    
     if order_criteria == "due_date":
         results.sort(key=lambda x: dateutil.parser.parse(x[3]),
                     reverse=True if order_asc == "DESC" else False)
@@ -103,6 +109,7 @@ def search_page(page, order_criteria, order_asc):
     return render_template('search_results.html',
                            query=user_query,
                            display=display,
+                           show_trials=show_trials,
                            length=len(results),
                            results=paginated_results,
                            total_pages=total_pages)

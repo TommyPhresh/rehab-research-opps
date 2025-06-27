@@ -26,6 +26,12 @@
   <option value="DESC">Descending</option>
   <option value="ASC">Ascending</option>
  </select>
+
+ <label class="trial-filter">
+  <input type="checkbox" id="show_trials"
+  {% if show_trials %}checked{% endif %}>
+  Include Clinical Trials
+ </label>
 </div>
 
 <table id="results">
