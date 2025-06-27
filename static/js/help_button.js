@@ -14,3 +14,12 @@ document.addEventListener('click', function() {
   wrapper.classList.remove('show-help');
  });
 });
+
+// search specialty query once button clicked
+document.querySelectorAll('.main-button').forEach(button => {
+ button.addEventListener('click', e => {
+  const query = encodeURIComponent(e.currentTarget.dataset.query);
+  const display = encodeURIComponent(e.currentTarget.dataset.display);
+  window.location.href = `/search?query=${query}&display=${display}`;
+ });
+});

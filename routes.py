@@ -60,8 +60,10 @@ def search():
     conn = get_db()
     user_query = request.args.get('query')
     results = basic_query(conn, user_query)
+    display = request.args.get('display')
     cache.set(f'search_results_{user_query}', results)
-    cache.set('query', user_query)    
+    cache.set('query', user_query)
+    cache.set('display', display)
     return search_page_router(1)
 
 # routing of pagination to enable dynamic sorting
@@ -77,6 +79,7 @@ def search_page(page, order_criteria, order_asc):
     conn = get_db()
     user_query = cache.get('query')
     results = cache.get(f"search_results_{user_query}")
+    display = cache.get('display')
 
     # regenerate results if cache has expired
     if results is None:
@@ -99,6 +102,7 @@ def search_page(page, order_criteria, order_asc):
     total_pages = (len(results) + per_page + 1) // per_page
     return render_template('search_results.html',
                            query=user_query,
+                           display=display,
                            length=len(results),
                            results=paginated_results,
                            total_pages=total_pages)

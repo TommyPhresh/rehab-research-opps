@@ -1,6 +1,6 @@
 {% macro help_button(button_text, help_content) %}
 <div class="button-help-wrapper">
- <button class="main-button">{{ button_text }}</button> 
+ <button class="main-button" data-query="{{ help_content }}" data-display="{{ button_text }}">{{ button_text }}</button> 
  <span class="question-mark">?</span>
  <div class="help-text">{{ help_content }} </div>
 </div> 

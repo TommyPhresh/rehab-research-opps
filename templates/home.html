@@ -42,6 +42,7 @@
    showLoader(); 
    event.target.submit();
   });
+  window.addEventListener('beforeunload', showLoader);
  </script>
  <script src="{{ url_for('static', filename='js/help_button.js') }}"></script>
 {% endblock %}

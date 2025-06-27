@@ -8,7 +8,11 @@
 {% endblock %}
 
 {% block content %}
+{% if display %}
+<h1>Showing {{ length }} results in the specialty "{{ display }}"</h1>
+{% else %}
 <h1>Showing {{ length }} results for "{{ query }}"</h1>
+{% endif %}
 
 <div> 
  <label for="order_criteria">Sort by:</label>
