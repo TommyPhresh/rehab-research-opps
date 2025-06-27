@@ -1,6 +1,6 @@
-from flask import Blueprint, request, render_template, redirect, url_for
+from flask import Blueprint, request, render_template, redirect, url_for, make_response
 from flask_login import login_user, login_required, logout_user, current_user
-import dateutil
+import dateutil, csv, io
 
 from db import basic_query, get_db
 from constants import specialty_queries
@@ -36,10 +36,6 @@ def logout():
     logout_user()
     return redirect(url_for("main.login"))
 
-#################################
-#      BEGIN PAGE FUNCTIONS     #
-#################################
-
 # homepage route upon starting app
 @bp.route("/")
 def index():
@@ -52,6 +48,10 @@ def index():
 @login_required
 def homepage():
     return render_template('home.html', specialties=specialty_queries)
+
+#################################
+#  BEGIN SEARCH PAGE FUNCTIONS  #
+#################################
 
 # pull rows from db based on vector similarity
 @bp.route("/search", methods=["POST", "GET"])
@@ -95,10 +95,11 @@ def search_page(page, order_criteria, order_asc, show_trials):
     
     if order_criteria == "due_date":
         results.sort(key=lambda x: dateutil.parser.parse(x[3]),
-                    reverse=True if order_asc == "DESC" else False)
+                    reverse=(order_asc == "DESC"))
     else:
         results.sort(key=lambda x: float(x[4]),
-                    reverse=True if order_asc == "DESC" else False)
+                    reverse=(order_asc == "DESC"))
+
 
     # paginate newly-sorted search results
     per_page = 25
@@ -113,3 +114,44 @@ def search_page(page, order_criteria, order_asc, show_trials):
                            length=len(results),
                            results=paginated_results,
                            total_pages=total_pages)
+
+# export current search results to CSV
+@bp.route('/search/export')
+@login_required
+def export_csv():
+    user_query = request.args.get('query')
+    order_criteria = request.args.get("sort_criteria", 'similarity')
+    order_asc = request.args.get("ascend", 'DESC')
+    show_trials = request.args.get("show_trials", "true")
+    show_trials = show_trials.lower() in ("1", "true")
+    
+    results = basic_query(get_db(), user_query)
+    
+    if not show_trials:
+        results = [row for row in results if row[6]]
+
+    if order_criteria == "due_date":
+        results.sort(key=lambda x: dateutil.parser.parse(x[3]),
+                     reverse=(order_asc == "DESC"))
+    else:
+        results.sort(key=lambda x: float(x[4]),
+                     reverse=(order_asc == "DESC"))
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(['Award Name', 'Organization', 'Due Date',
+                     'Brief Description', 'Link', 'isGrant'])
+    for row in results:
+        writer.writerow([
+            row[0], row[1], row[3], row[2], row[4], row[5]
+            ])
+
+    response = make_response(buffer.getvalue())
+    response.headers["Content-Disposition"] = f"attachment; filename=search_{user_query}.csv"
+    response.headers["Content-Type"] = "text/csv"
+    return response
+
+    
+    
+        
+    

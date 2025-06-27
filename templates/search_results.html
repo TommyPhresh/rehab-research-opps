@@ -32,6 +32,18 @@
   {% if show_trials %}checked{% endif %}>
   Include Clinical Trials
  </label>
+
+ <a id="export-csv" class="btn-secondary"
+    href="{{ url_for('main.export_csv', 
+                      query=query|urlencode,
+		      display=display|urlencode if display else None,
+                      sort_criteria=sort_criteria,
+                      ascend=ascend,
+                      show_trials='true' if show_trials else 'false'
+                    ) }}" 
+    download="search_{{ (display|default(query)) | replace(' ', '_') }}.csv">
+  Export search results to Excel file
+ </a>
 </div>
 
 <table id="results">

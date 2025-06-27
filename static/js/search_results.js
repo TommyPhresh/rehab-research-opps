@@ -1,5 +1,6 @@
 let currentPage = 1;
 let updateRowClickHandlers, updatePaginationLinks, updatePaginationSpan, fetchPage;
+const exportLink = document.getElementById('export-csv');
 const grantCheckbox = document.getElementById('show_trials');
 
 /* listen for changes to sorting criteria once results are loaded */
@@ -17,6 +18,7 @@ $(document).ready(function() {
 grantCheckbox.addEventListener('change', () => {
  fetchPage(1, $('#order_criteria').val(), $('#order_asc').val());
 });
+
 
  /* dynamically sort without reloading */
 function sortResults(criteria, ascend) {
