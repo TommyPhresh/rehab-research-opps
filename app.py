@@ -30,7 +30,7 @@ def create_app():
     # scheduler configs and setup for data pipeline
     logging.basicConfig(level=logging.INFO)
     scheduler = BackgroundScheduler()
-    trigger = CronTrigger(day=25, hour=11, minute=25)
+    trigger = CronTrigger(day=15, hour=2, minute=0)
     scheduler.add_job(func=lambda: update(app), trigger=trigger)
     scheduler.start()
     
