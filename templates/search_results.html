@@ -8,6 +8,12 @@
 {% endblock %}
 
 {% block content %}
+
+<form action="/search" method="GET" id="clinician-search">
+ <input id ="searchInput" style="height: 30px; width: 75%;" type="text" name="query" placeholder="Search..." required>
+ <button id="searchButton" style="font-size: 18px;" type="submit">Go!</button>
+</form>
+
 {% if display %}
 <h1>Showing {{ length }} results in the specialty "{{ display }}"</h1>
 {% else %}
@@ -42,8 +48,8 @@
                       show_trials='true' if show_trials else 'false'
                     ) }}" 
     download="search_{{ (display|default(query)) | replace(' ', '_') }}.csv"
-    style="float: right;">
-  Export search results to Excel file
+    style="float: right; font-size:20px;">
+  Export to Excel
  </a>
 </div>
 
