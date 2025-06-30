@@ -120,6 +120,7 @@ def search_page(page, order_criteria, order_asc, show_trials):
 @login_required
 def export_csv():
     user_query = request.args.get('query')
+    display = request.args.get('display')
     order_criteria = request.args.get("sort_criteria", 'similarity')
     order_asc = request.args.get("ascend", 'DESC')
     show_trials = request.args.get("show_trials", "true")
@@ -143,15 +144,11 @@ def export_csv():
                      'Brief Description', 'Link', 'isGrant'])
     for row in results:
         writer.writerow([
-            row[0], row[1], row[3], row[2], row[4], row[5]
+            row[0], row[1], row[3], row[2], row[5], row[6]
             ])
 
+    filename = display if (display is not None) else query
     response = make_response(buffer.getvalue())
-    response.headers["Content-Disposition"] = f"attachment; filename=search_{user_query}.csv"
+    response.headers["Content-Disposition"] = f"attachment; filename=search_{filename}.csv"
     response.headers["Content-Type"] = "text/csv"
     return response
-
-    
-    
-        
-    
