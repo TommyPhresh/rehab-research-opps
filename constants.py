@@ -12,7 +12,7 @@ columns = ["Award Name", "Specialty", "Funding Mechanism",
                   "Maximum Duration (Yr)", "Letter of Intent Required?",
                   "Due Date", "Relevance"]
 
-grants_URL = "https://api.grants.gov/v1/api/search2"
+grants_url = "https://api.grants.gov/v1/api/search2"
 
 nih_org_map = {
     "FIC":["Any"],
@@ -43,7 +43,7 @@ nih_org_map = {
     "CLC":["Any"]
     }
 
-search_terms = [
+grants_search_terms = [
     "Interventional Spine", "Pain Management", "Electromyography", "Electrodiagnostics", "Radiculopathy",
     "Musculoskeletal Rehabilitation", "Ultrasound", "Pediatric Rehabilitation", "Neuropsychology",
     "Rehabilitation Psychology", "Traumatic Brain Injury", "Stroke Rehabilitation", "Spasticity",

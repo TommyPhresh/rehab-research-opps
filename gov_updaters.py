@@ -1,9 +1,12 @@
-import requests, pandas as pd
+import requests, pandas as pd, json
 from io import StringIO
-from constants import trials_url, trials_format, trials_statuses, trials_pagesize, empty_response_length, search_conditions, search_interventions
+from datetime import datetime
+from constants import trials_url, trials_format, trials_statuses, trials_pagesize,
+                      empty_response_length, search_conditions,
+                      search_interventions, grants_search_terms
 
 
-updaters = [clinical_trials]
+updaters = [clinical_trials, grants]
 
 # queries clinical trials db for relevant & active trials
 def search_clinical_trials(user_query, is_condition):
@@ -47,4 +50,54 @@ def clinical_trials(data):
         df = df._append(trials_formatter(search_clinical_trials(intervention, False)))
     for item in df.to_dict('records'):
         data.append(item)
-    
+
+# grants.gov API    
+def grants_search(user_query):
+    json_data = {
+        'keyword': user_query,
+        'oppStatuses': 'forecasted|posted'
+        }
+    response = requests.post(grants_url, headers={}, json=json_data)
+    if (response.status_code == 200):
+        data = json.loads(response.text)
+        if (data['data']['hitCount'] == 0):
+            print('No results found.')
+            return 1
+        else:
+            return data
+    else:
+        data = json.loads(response.text)
+        print('HTTP ERROR:', data['message'])
+        return 2
+
+# convert grants.gov API response to webpage format        
+def grants_formatter(data):
+    dict_list = data['data']['oppHits']
+    L, res = [], []
+    for D in dict_list:
+        L.append({k: D[k] for k in ('id', 'title', 'agency', 'closeDate')})
+
+    def date_stripper(date):
+        if date != '':
+            return datetime.strptime(date, '%m/%d/%Y').strftime('%Y-%m-%d')
+        else: return 'No deadline listed.'
+        
+    for row in L:
+        res.append({
+            'name': row['title'],
+            'org': row['agency'],
+            'desc': 'No description.',
+            'deadline': date_stripper(row['closeDate']),
+            'link': f"https://www.grants.gov/search-results-detail/{row['id']}",
+            'grant': True
+            })
+    return res        
+
+# grants API handler
+def grants(data):
+    for term in grants_search_terms:
+        response = grants_search(term)
+        if not isinstance(response, int):
+            res_set = grants_formatter(response)
+            for item in res_set:
+                data.append(item)
