@@ -41,7 +41,8 @@
                       ascend=ascend,
                       show_trials='true' if show_trials else 'false'
                     ) }}" 
-    download="search_{{ (display|default(query)) | replace(' ', '_') }}.csv">
+    download="search_{{ (display|default(query)) | replace(' ', '_') }}.csv"
+    style="float: right;">
   Export search results to Excel file
  </a>
 </div>
