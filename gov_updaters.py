@@ -1,12 +1,19 @@
-import requests, pandas as pd, json
+import requests, pandas as pd, json, csv
 from io import StringIO
 from datetime import datetime
+
 from constants import trials_url, trials_format, trials_statuses, trials_pagesize,
                       empty_response_length, search_conditions,
-                      search_interventions, grants_search_terms
+                      search_interventions, grants_search_terms, nih_url,
+                      nih_params
 
 
 updaters = [clinical_trials, grants]
+
+
+###################
+# CLINICAL TRIALS #
+###################
 
 # queries clinical trials db for relevant & active trials
 def search_clinical_trials(user_query, is_condition):
@@ -50,6 +57,10 @@ def clinical_trials(data):
         df = df._append(trials_formatter(search_clinical_trials(intervention, False)))
     for item in df.to_dict('records'):
         data.append(item)
+
+##################
+#     GRANTS     #
+##################
 
 # grants.gov API    
 def grants_search(user_query):
@@ -101,3 +112,34 @@ def grants(data):
             res_set = grants_formatter(response)
             for item in res_set:
                 data.append(item)
+
+###########
+#   NIH   #                
+###########
+
+# Formats NIH API response to match webpage format
+def nih_formatter(response):
+    text = StringIO(response.text)
+    df = pd.read_csv(text)
+    df.rename(columns={
+        'Title': 'name',
+        'Organization': 'org',
+        'Expired_Date': 'deadline',
+        'URL': 'link'
+        }, inplace=True)
+    df = df.loc[:, df.columns.intersection(['name', 'org', 'deadline', 'link'])]
+    df['deadline'] = df['deadline'].map(lambda x: datetime.strptime(x, '%m/%d/%Y').strftime('%Y-%m-%d'))
+    df['grant'] = True
+    df['desc'] = 'No description given.'
+    return df.to_dict('records')
+
+# NIH API
+def nih(data):
+    params = nih_params
+    params['daterange'] = f"01011991-{datetime.now().strftime('%m%d%Y')}"
+    response = requests.get(nih_url, params=params)
+    if response.status_code == 200:
+        res_set = nih_formatter(response)
+        for item in res_set:
+            data.append(item)
+
