@@ -7,7 +7,7 @@ from flask import current_app
 from constants import REFRESH_INTERVAL
 from private_updaters import updaters as privates
 from db import get_db
-# from gov_updaters import updaters as publics 
+from gov_updaters import updaters as publics 
 
 
 # FORMAT
@@ -93,6 +93,6 @@ def get_data():
             print(f'{api.__name__}')
         except Exception as e:
             print(f'{api.__name__} failed: {e}')
-    # for api in publics: 
-        # api(data)
+    for api in publics: 
+        api(data)
     return data
