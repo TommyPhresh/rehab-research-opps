@@ -1,14 +1,15 @@
-import requests, pandas as pd, json, csv
+import requests, pandas as pd, json, csv, time
 from io import StringIO
 from datetime import datetime
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 from constants import trials_url, trials_format, trials_statuses, trials_pagesize,
                       empty_response_length, search_conditions,
                       search_interventions, grants_search_terms, nih_url,
-                      nih_params
+                      nih_params, nsf_landing
 
-
-updaters = [clinical_trials, grants]
+updaters = [clinical_trials, grants, nih, nsf]
 
 
 ###################
@@ -143,3 +144,68 @@ def nih(data):
         for item in res_set:
             data.append(item)
 
+###########
+#   NSF   #                
+###########
+
+# nsf formatting
+def nsf_formatter(response):
+    df = pd.read_csv(StringIO(response.text))
+    df['Status'] = df['Status'].map(lambda x: x if isinstance(x, str) else 'N/A')
+    df = df[(df['Status'] == 'Cleared') | (df['Status'] == 'N/A')]
+    df = df[(df['Type'] == 'Program')]
+    df.rename(columns={
+        'Title': 'name',
+        'Synopsis': 'desc',
+        'Next due date (Y-m-d)': 'deadline',
+        'URL': 'link'}, inplace=True)
+    df['deadline'] = df['deadline'].map(lambda x: x if isinstance(x, str) else '')
+    df['deadline'] = df['deadline'].map(lambda x: x if (x == '') else x.split(', ')[0])
+    df['grant'] = True
+    df['org'] = 'NSF'
+    df = df.loc[:, df.columns.intersection(['name', 'org', 'deadline', 'desc', 'link', 'grant'])]
+    return df.to_dict('records')
+    
+
+# NSF API
+def nsf(data):
+    # solve challenge from AWS
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0')
+    driver = webdriver.Chrome(options=options)
+    driver.get(nsf_landing)
+    time.sleep(2)
+
+    # get all the cookies before closing the driver
+    session = requests.Session()
+    for cookie in driver.get_cookies():
+        session.cookies.set(cookie['name'], cookie['value'],
+                            domain=cookie['domain'], path=cookie['path'])
+    driver.quit()
+
+    # inject headers 
+    session.headers.update({
+        'User-Agent': ("Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                       "AppleWebKit/537.36 (KHTML, like Gecko) "
+                       "Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"),
+        'Referer': nsf_landing,
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        })
+
+    # poll export endpoint until CSV complete
+    start = time.time()
+    while True:
+        response = session.get(nsf_export, params=nsf_params)
+        if response.status_code == 200:
+            break
+        if response.status_code not in (202,) or (time.time() - start) > 45:
+            response.raise_for_status()
+        time.sleep(1)
+
+    # finish off
+    res_set = nsf_formatter(response)
+    for item in res_set:
+        data.append(item)
+    

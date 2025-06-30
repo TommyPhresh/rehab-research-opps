@@ -75,7 +75,12 @@ nih_params = {
     'spons': 'true'
     }
 
-nsf_link = "https://new.nsf.gov/funding/opps/csvexport?page&_format=csv"
-nsf_path = "C:\\Users\\Student\\Downloads\\nsf_funding.csv"
+nsf_landing = (
+    "https://www.nsf.gov/funding/opportunities"
+    f"?query=&sort=search_api_relevance_DESC"
+    )
+nsf_ajax_views = "https://www.nsf.gov/views/ajax?query=&sort=search_api_relevance_DESC&_wrapper_format=drupal_ajax&archived_toggle=current&view_name=funding&view_display_id=all&view_args=&view_path=%2Ffunding%2Fopportunities&view_base_path=funding%2Fopportunities&view_dom_id=45b346671040be2a973595c2df8cf1d31d388d5ecf3567f14e7991c80b898a47&pager_element=0&exposed_form_display=1&_drupal_ajax=1"
+nsf_ajax_facets = "https://www.nsf.gov/facets-block-ajax?_wrapper_format=drupal_ajax"
+nsf_export = "https://www.nsf.gov/funding/opps/csvexport"
 
 REFRESH_INTERVAL = timedelta(weeks=4)
