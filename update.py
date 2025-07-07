@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import logging, duckdb
-from duckdb.typing import VARCHAR, FLOAT
+from duckdb.typing import VARCHAR, FLOAT, INTEGER
 from flask import current_app
 
 from constants import REFRESH_INTERVAL
@@ -39,6 +39,7 @@ def rebuild_data(app, dest='data.parquet'):
     # grab all API results
     data = get_data()
     # compute embeddings
+    print('retrieved all data')
     df = pd.DataFrame(data)
     df = df.drop_duplicates(subset='name')
     try:
@@ -47,19 +48,44 @@ def rebuild_data(app, dest='data.parquet'):
         pass
     conn.execute("CREATE TABLE documents AS SELECT * FROM df")
     conn.execute("ALTER TABLE documents ADD embedding FLOAT[1024]")
-    conn.execute("""
-    UPDATE documents
-    SET embedding = vectorize(name || ' ' || "desc")
-    WHERE embedding IS NULL
-    """)
+    conn.execute("CREATE SEQUENCE rowid_seq START 1")
+    conn.execute("ALTER TABLE documents ADD rowid INTEGER DEFAULT nextval('rowid_seq')")
+    # the big one - batched for log-ability & pause-ability
+    # save {BATCH_SIZE} rows to new parquet in background (no effect on
+    # prod db), repeated {len(documents)} times until complete,
+    # then change the name of the new file to 'data.parquet' once 100%
+    i = 1
+    batch_size = 250
+    table_size = len(df)
+    while True:
+        batch = conn.execute(f"""
+                SELECT name, "desc", rowid FROM documents
+                WHERE embedding IS NULL
+                LIMIT {batch_size}
+                """).fetchdf()
 
-    # save to Parquet
+        if batch.empty:
+            print("DONE")
+            break
+        print("Batch:", i, "of", table_size / batch_size + 1)
+        for _, row in batch.iterrows():
+            conn.execute(f"""
+                UPDATE documents
+                SET embedding = vectorize(? || ' ' || ?)
+                WHERE rowid = ?
+                """,(row['name'], row['desc'], row['rowid'])) 
+        save_batch(batch, i)
+        i += 1       
+    # the final save to data.parquet
     try:
         save_to_parquet(conn, dest)
     finally:
         conn.close()
 
-    
+# saves batch df to tmp parquet file
+def save_batch(batch, batch_num):
+    batch.to_parquet(f'C:\\Users\\trich6\\Desktop\\rehab_frontend\\batches\\batch_{batch_num}.parquet')              
+       
 # updates last refresh timestamp
 def update_last_refresh(filename='last_refresh.txt'):
     with open(filename, 'w') as f:
@@ -80,8 +106,12 @@ def is_fresh(interval=REFRESH_INTERVAL):
 
 # converts list of dicts to parquet file 
 # for compressed storage on server
-def save_to_parquet(conn, filename='data.parquet'):
-    conn.execute(f"COPY documents TO '{filename}' (FORMAT 'parquet');")
+def save_to_parquet(conn, filename='new_data.parquet'):
+    conn.execute(f"""COPY (
+                 SELECT name, org, "desc", deadline, link, grant
+                 FROM documents
+                 )
+                 TO '{filename}' (FORMAT 'parquet');""")
 
 # calls all updaters, public and private, then appends
 # their results into one list of dicts
@@ -94,5 +124,9 @@ def get_data():
         except Exception as e:
             print(f'{api.__name__} failed: {e}')
     for api in publics: 
-        api(data)
+        try:
+            api(data)
+            print(f'{api.__name__}')
+        except Exception as e:
+            print(f'{api.__name__} failed: {e}')
     return data
