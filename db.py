@@ -25,7 +25,7 @@ def basic_query(conn, search_term):
     query = f"""
     SELECT name, org, "desc", deadline,
     array_inner_product(CAST(embedding AS FLOAT[1024]), vectorize('{str(search_term)}')) AS similarity,
-    link, grant
+    link, isGrant
     FROM read_parquet('C:\\Users\\trich6\\Desktop\\rehab_frontend\\data.parquet')
     WHERE similarity > 0.5
     ORDER BY similarity DESC

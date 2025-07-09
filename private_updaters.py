@@ -48,7 +48,7 @@ def tomberg(data):
         "org": "Tomberg Family Foundation, Tomberg & Brecher Charitable Funds",
         "desc": "The Tomberg Family Philanthropies only makes grants to 501(c)(3) nonprofit organizations based in the United States and certain government entities or public institutions in the United States such as public schools and universities. We fund projects worldwide that are run by these organizations. Our grants normally range from $5,000 to $20,000.",
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
+        "link": link, "isGrant": True
     }
     data.append(item)
 
@@ -64,7 +64,7 @@ def rmjsf(data):
         "org": "Robert & Mary Jane Smith Foundation",
         "desc": "Founded in 2017, the Robert and Mary Jane Smith Foundation is dedicated to supporting nonprofit institutions based in the United States. Our foundation prioritizes support for the development and education of young people, medical institutions and research, cultural and faith-based organizations, and humanitarian efforts.",
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
+        "link": link, "isGrant": True
         }
     data.append(item)
 
@@ -82,7 +82,7 @@ def mli(data):
         The Varela Grants fund rigorous examinations of contemplative practices with the ultimate goal that findings derived from such investigations will provide greater insight into contemplative practices and their applications for reducing human suffering and promoting flourishing.
         Proposals are encouraged across broad domains, including: cognitive science, clinical psychology, education, anthropology, neuroscience, health/medical, social science, and humanities. Preference is given to proposals that incorporate first-person contemplative methods (e.g., introspective investigation and reports on subjective experience) into cognitive, behavioral, physiological, clinical, or socio-cultural research. Preference is also given to proposals that have the potential to contribute to interdisciplinary knowledge and to make connections across different disciplines. This grant program encourages the active collaboration of scientists with contemplative scholars/practitioners in all phases of research.""",
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
+        "link": link, "isGrant": True
         }
     data.append(item)
 
@@ -100,7 +100,7 @@ def keck(data):
         "org": "The W. M. Keck Foundation",
         "desc": "The W. M. Keck Research Program seeks to benefit humanity by supporting Medical Research and Science & Engineering projects that are distinctive and novel in their approach, question the prevailing paradigm, or have the potential to break open new territory in their field.",
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
+        "link": link, "isGrant": True
         }
     data.append(item)
 
@@ -116,14 +116,14 @@ def hanger(data):
             "org": "Hanger Foundation",
             "desc": "Supporting nonprofit organizations that serve people with physical challenges",
             "deadline": due_date.strftime("%Y-%m-%d"),
-            "link": link, "grant": True
+            "link": link, "isGrant": True
         }
     row2 = {
             "name": "Hanger Foundation Veteran Grant",
             "org": "Hanger Foundation",
             "desc": "Supporting nonprofit organizations that serve our veterans.",
             "deadline": due_date.strftime("%Y-%m-%d"),
-            "link": link, "grant": True
+            "link": link, "isGrant": True
         }
     data.append(row1)
     data.append(row2)
@@ -140,7 +140,7 @@ def beckman(data):
         "org": "The Arnold & Mabel Beckman Foundation",
         "desc": "The Beckman Young Investigator (BYI) Program provides research support to the most promising young faculty members in the early stages of their academic careers in the chemical and life sciences, particularly to foster the invention of methods, instruments, and materials that will open up new avenues of research in science.",
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
+        "link": link, "isGrant": True
         }
     data.append(item)
 
@@ -161,7 +161,7 @@ def alpert(data):
         "org": "Warren Alpert Foundation",
         "desc": "The Warren Alpert Foundation accepts grants for medical research, medical education, and in some cases general education and basic human services grants.",
         "deadline": due_date1.strftime("%Y-%m-%d"),
-        "link": link1, "grant": True
+        "link": link1, "isGrant": True
     }
     if (now.month < 11):
         due_date2 = datetime(now.year, 11, 1)
@@ -172,7 +172,7 @@ def alpert(data):
         "org": "Warren Alpert Foundation",
         "desc": "These transitional awards are to enable a postdoctoral researcher to advance to become a full-time faculty member at the Assistant Professor level or higher and to promote the development of a laboratory program that will lead to independent funding. The medical school, research institute, or academic hospital appointing the scholar will be awarded $200,000 annually for two years to cover salary, lab costs, and related expenses. Under certain circumstances, the awardee may transfer funding to support their beginning faculty position. Indirect costs of up to 15% of direct costs may be included in the $200,000.",
         "deadline": due_date2.strftime("%Y-%m-%d"),
-        "link": link2, "grant": True
+        "link": link2, "isGrant": True
     }
     data.append(row1)
     data.append(row2)
@@ -192,7 +192,7 @@ def mutual(data):
         Each year, the Mutual of America Foundation sponsors a national competition in which hundreds of organizations demonstrate the value of their partnership to the communities they serve, their ability to be replicated by others, and their capacity to stimulate new approaches to addressing significant social issues.
         """,
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
+        "link": link, "isGrant": True
     }
     data.append(item)
 
@@ -215,7 +215,7 @@ def ampsych(rows):
                 "org": "American Psychological Foundation",
                 "desc": desc,
                 "deadline": due_date,
-                "link": link, "grant": True
+                "link": link, "isGrant": True
                 })
 
     # meat of scraper - webdriver
@@ -272,7 +272,7 @@ def medline(data):
         "org": "Medline Industries",
         "desc": "The IIS program provides support for research that advances scientific and medical knowledge about Medline products and generates promising approaches to medical care. Our support of projects can include direct funding to cover all or a portion of study-related costs, product and safety design input. If the Scientific Review Committee approves an application, execution of an agreement is required for disbursement of funds and/or product, which includes milestones and publishing expectations.",
         "deadline": due_date.strftime("%Y-%m-%d"),
-        "link": link, "grant": True
+        "link": link, "isGrant": True
     }
     data.append(item)
         
@@ -309,7 +309,7 @@ def pfizer(rows):
                 "desc": desc,
                 "deadline": datetime.strptime(due_date, "%B %d, %Y").strftime("%Y-%m-%d"),
                 "link": link, 
-                "grant": True
+                "isGrant": True
             })
 
     driver = webdriver.Firefox()
@@ -361,7 +361,7 @@ def robinson(data):
             """,
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": "https://www.robinsonfdn.org/grant-requirements",
-            "grant": True
+            "isGrant": True
         }
         data.append(item)
 
@@ -380,7 +380,7 @@ def winn(data):
         """,
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": "https://winnawards.org/winn-cda/",
-        "grant": True
+        "isGrant": True
     }
     data.append(item)
 
@@ -400,7 +400,7 @@ def mvdreyfus(data):
             "desc": "The Foundation does not establish funding priorities on an annual basis, but rather supports worthwhile activities for which an organization has made a compelling case to receive funding. As a result, Foundation staff cannot advise applicants on the appropriateness of one potential submission over another. Instead, we generally suggest that organizations select programs for which they can make their best case for support, and for which a small amount of money can have a large impact.",
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": "https://mvdreyfusfoundation.org/application-guidelines",
-            "grant": True
+            "isGrant": True
         }
         data.append(item)
     
@@ -421,7 +421,7 @@ def vsrf(data):
         """,
         "deadline": due_date.strftime("%Y-%m-%d"),
         "link": "https://app.vsrfoundation.com/how-to-apply/",
-        "grant": True
+        "isGrant": True
     }
     data.append(item)
 
@@ -446,7 +446,7 @@ def tmcity(data):
             """,
             "deadline": due_date.strftime("%Y-%m-%d"),
             "link": "https://www.tmcity.org/foundation",
-            "grant": True
+            "isGrant": True
         }
         data.append(item)
         
@@ -455,4 +455,3 @@ updaters = [
     tomberg, rmjsf, mli, keck, hanger, beckman, alpert,
     mutual, medline, pfizer, robinson, winn, mvdreyfus, ampsych, vsrf, tmcity
     ]
-

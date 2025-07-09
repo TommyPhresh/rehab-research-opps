@@ -59,7 +59,8 @@ def rebuild_data(app, dest='data.parquet'):
     table_size = len(df)
     while True:
         batch = conn.execute(f"""
-                SELECT name, "desc", rowid FROM documents
+                SELECT rowid, name, org, "desc", deadline, link, isGrant
+                FROM documents
                 WHERE embedding IS NULL
                 LIMIT {batch_size}
                 """).fetchdf()
@@ -67,13 +68,15 @@ def rebuild_data(app, dest='data.parquet'):
         if batch.empty:
             print("DONE")
             break
+        
         print("Batch:", i, "of", table_size / batch_size + 1)
         for _, row in batch.iterrows():
             conn.execute(f"""
                 UPDATE documents
                 SET embedding = vectorize(? || ' ' || ?)
                 WHERE rowid = ?
-                """,(row['name'], row['desc'], row['rowid'])) 
+                """,(row['name'], row['desc'], row['rowid']))
+            
         save_batch(batch, i)
         i += 1       
     # the final save to data.parquet
@@ -108,7 +111,7 @@ def is_fresh(interval=REFRESH_INTERVAL):
 # for compressed storage on server
 def save_to_parquet(conn, filename='new_data.parquet'):
     conn.execute(f"""COPY (
-                 SELECT name, org, "desc", deadline, link, grant
+                 SELECT name, org, "desc", deadline, link, isGrant
                  FROM documents
                  )
                  TO '{filename}' (FORMAT 'parquet');""")

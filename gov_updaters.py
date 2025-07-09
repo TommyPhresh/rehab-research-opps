@@ -4,13 +4,7 @@ from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from constants import trials_url, trials_format, trials_statuses, trials_pagesize,
-                      empty_response_length, search_conditions,
-                      search_interventions, grants_search_terms, nih_url,
-                      nih_params, nsf_landing
-
-updaters = [clinical_trials, grants, nih, nsf]
-
+from constants import *
 
 ###################
 # CLINICAL TRIALS #
@@ -29,7 +23,7 @@ def search_clinical_trials(user_query, is_condition):
         print('HTTP error:', response.text)
         return 1
     elif len(response.text) < empty_response_length:
-        print('Your search returned 0 results. Please try again.')
+        # print('Your search returned 0 results. Please try again.')
         return 2
     else: return response
 
@@ -46,7 +40,7 @@ def trials_formatter(response):
         }, inplace=True)
     data = data.loc[:, data.columns.intersection(['name', 'org', 'desc', 'deadline',
                                      'link'])]
-    data['grant'] = False
+    data['isGrant'] = False
     return data
         
 # return updated clinical trials related to PM&R
@@ -73,7 +67,7 @@ def grants_search(user_query):
     if (response.status_code == 200):
         data = json.loads(response.text)
         if (data['data']['hitCount'] == 0):
-            print('No results found.')
+            # print('No results found.')
             return 1
         else:
             return data
@@ -101,7 +95,7 @@ def grants_formatter(data):
             'desc': 'No description.',
             'deadline': date_stripper(row['closeDate']),
             'link': f"https://www.grants.gov/search-results-detail/{row['id']}",
-            'grant': True
+            'isGrant': True
             })
     return res        
 
@@ -130,7 +124,7 @@ def nih_formatter(response):
         }, inplace=True)
     df = df.loc[:, df.columns.intersection(['name', 'org', 'deadline', 'link'])]
     df['deadline'] = df['deadline'].map(lambda x: datetime.strptime(x, '%m/%d/%Y').strftime('%Y-%m-%d'))
-    df['grant'] = True
+    df['isGrant'] = True
     df['desc'] = 'No description given.'
     return df.to_dict('records')
 
@@ -161,7 +155,7 @@ def nsf_formatter(response):
         'URL': 'link'}, inplace=True)
     df['deadline'] = df['deadline'].map(lambda x: x if isinstance(x, str) else '')
     df['deadline'] = df['deadline'].map(lambda x: x if (x == '') else x.split(', ')[0])
-    df['grant'] = True
+    df['isGrant'] = True
     df['org'] = 'NSF'
     df = df.loc[:, df.columns.intersection(['name', 'org', 'deadline', 'desc', 'link', 'grant'])]
     return df.to_dict('records')
@@ -197,7 +191,7 @@ def nsf(data):
     # poll export endpoint until CSV complete
     start = time.time()
     while True:
-        response = session.get(nsf_export, params=nsf_params)
+        response = session.get(nsf_export)
         if response.status_code == 200:
             break
         if response.status_code not in (202,) or (time.time() - start) > 45:
@@ -208,4 +202,7 @@ def nsf(data):
     res_set = nsf_formatter(response)
     for item in res_set:
         data.append(item)
-    
+
+updaters = [clinical_trials, grants, nih, nsf]
+
+        

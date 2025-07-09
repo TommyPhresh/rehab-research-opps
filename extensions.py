@@ -7,4 +7,3 @@ cache = Cache(config={
     })
 
 login_manager = LoginManager()
-

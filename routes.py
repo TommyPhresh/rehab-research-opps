@@ -80,6 +80,7 @@ def search_page_router(page):
 # pagination & dynamic sorting of results
 def search_page(page, order_criteria, order_asc, show_trials):
     conn = get_db()
+    per_page = 25
     user_query = cache.get('query')
     results = cache.get(f"search_results_{user_query}")
     display = cache.get('display')
@@ -92,21 +93,22 @@ def search_page(page, order_criteria, order_asc, show_trials):
     # filter & re-order based on updated sort criteria from user
     if not show_trials:
         results = [row for row in results if row[6]]
+        total_pages = (len(results) + per_page + 1) // per_page
     
     if order_criteria == "due_date":
         results.sort(key=lambda x: dateutil.parser.parse(x[3]),
                     reverse=(order_asc == "DESC"))
+        total_pages = (len(results) + per_page + 1) // per_page
     else:
         results.sort(key=lambda x: float(x[4]),
                     reverse=(order_asc == "DESC"))
+        total_pages = (len(results) + per_page + 1) // per_page
 
 
     # paginate newly-sorted search results
-    per_page = 25
     start = (page - 1) * per_page
     end = start + per_page
     paginated_results = results[start:end]
-    total_pages = (len(results) + per_page + 1) // per_page
     return render_template('search_results.html',
                            query=user_query,
                            display=display,
