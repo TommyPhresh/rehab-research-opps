@@ -101,3 +101,4 @@ specialty_queries = {
 }
 
 REFRESH_INTERVAL = timedelta(weeks=4)
+DB_LOCATION = "data.parquet"
