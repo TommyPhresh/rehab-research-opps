@@ -19,8 +19,6 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'bp.login'
     register_user_loader()
-    # server configs
-    flask_ngrok.run_with_ngrok(app)
     # cache configs
     cache.init_app(app)
     # database configs
