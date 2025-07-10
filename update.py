@@ -29,7 +29,7 @@ def update(app):
 
 # grabs all API results, computes embeddings, and 
 # writes results to a Parquet file on server
-def rebuild_data(app, dest='data.parquet'):
+def rebuild_data(app, dest='new_data.parquet'):
     conn = duckdb.connect()
     conn.create_function('vectorize',
                          lambda sentence: app.model.encode(sentence)['dense_vecs'],
