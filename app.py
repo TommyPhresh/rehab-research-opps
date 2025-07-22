@@ -1,5 +1,5 @@
 from flask import Flask
-import flask_ngrok, FlagEmbedding, logging
+import FlagEmbedding, logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
