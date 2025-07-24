@@ -2,6 +2,7 @@ from flask import Flask
 import FlagEmbedding, logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+import pandas as pd
 
 from db import close_db
 from routes import bp
