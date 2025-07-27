@@ -102,3 +102,5 @@ specialty_queries = {
 
 REFRESH_INTERVAL = timedelta(weeks=4)
 DB_LOCATION = "data.parquet"
+TMP_DB_LOCATION = "tmp.duckdb"
+NEW_DB_LOCATION = "new_data.parquet"
