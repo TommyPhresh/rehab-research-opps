@@ -9,7 +9,7 @@ from routes import bp
 from extensions import cache, login_manager
 from user import register_user_loader
 from update import update
-from constants import DB_LOCATION
+from constants import LIVE_DB_LOCATION, LIVE_SPECIALTY_LOCATION
 
 
 # set up and config code upon startup
@@ -24,7 +24,8 @@ def create_app():
     cache.init_app(app)
     # database configs
     app.model = FlagEmbedding.BGEM3FlagModel('BAAI/bge-m3', use_fp16=True)
-    app.db = pd.read_parquet(DB_LOCATION)
+    app.db = pd.read_parquet(LIVE_DB_LOCATION)
+    app.specialty_db = pd.read_parquet(LIVE_SPECIALTY_LOCATION)
     app.teardown_appcontext(close_db)
     # routing registration
     app.register_blueprint(bp)

@@ -33,3 +33,22 @@ def basic_query(conn, search_term):
     """
     return conn.execute(query).fetchall()
     
+# accesses pre-calculated specialty results
+def specialty_query(conn, specialty):
+    query = f"""
+        SELECT 
+            maindb.name, 
+            maindb.org,
+            maindb."desc",
+            maindb.deadline,
+            specialtydb.similarity AS similarity
+            maindb.link, 
+            maindb.isGrant
+        FROM current_app.db AS maindb
+        JOIN current_app.specialty_db AS specialtydb
+        ON maindb.rowid = specialtydb.doc_rowid
+        WHERE specialtydb.specialty_name = '{str(specialty)}'
+        ORDER BY specialtydb.similarity DESC
+    """
+    return conn.execute(query).fetchall()
+

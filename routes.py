@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template, redirect, url_for, make_r
 from flask_login import login_user, login_required, logout_user, current_user
 import dateutil, csv, io
 
-from db import basic_query, get_db
+from db import basic_query, get_db, specialty_query
 from constants import specialty_queries
 from extensions import cache, login_manager
 from user import User, users
@@ -59,8 +59,18 @@ def homepage():
 def search():
     conn = get_db()
     user_query = request.args.get('query')
-    results = basic_query(conn, user_query)
     display = request.args.get('display')
+    results = []
+
+    if display:
+        results = specialty_query(conn, specialty)
+    elif user_query:
+        results = basic_query(conn, user_query)
+    else: 
+        cache.delete('query')
+        cache.delete('display')
+        cache.set('query', '')
+        return redirect(url_for('routes.search_page_router', page=1, query=''))
     
     cache.set(f'search_results_{user_query}', results)
     cache.set('query', user_query)
@@ -87,14 +97,20 @@ def search_page(page, order_criteria, order_asc, show_trials):
 
     # regenerate results if cache has expired
     if results is None:
-        results = basic_query(conn, user_query)
+        if display:
+            results = specialty_query(conn, str(display))
+        else:
+            results = basic_query(conn, user_query)
         cache.set(f"search_results_{user_query}", results)
+        cache.set('query', user_query)
+        cache.set('display', display)
 
     # filter & re-order based on updated sort criteria from user
     if not show_trials:
         results = [row for row in results if row[6]]
         total_pages = (len(results) + per_page + 1) // per_page
     
+    # sorting dropdowns implementation
     if order_criteria == "due_date":
         results.sort(key=lambda x: dateutil.parser.parse(x[3]),
                     reverse=(order_asc == "DESC"))
@@ -154,3 +170,4 @@ def export_csv():
     response.headers["Content-Disposition"] = f"attachment; filename=search_{filename}.csv"
     response.headers["Content-Type"] = "text/csv"
     return response
+
