@@ -165,9 +165,12 @@ def export_csv():
             row[0], row[1], row[3], row[2], row[5], row[6]
             ])
 
-    filename = display if (display is not None) else query
-    response = make_response(buffer.getvalue())
+    csv_data = buffer.getvalue()
+
+    filename = display if (display is not None) else user_query
+    response = make_response(csv_data)
     response.headers["Content-Disposition"] = f"attachment; filename=search_{filename}.csv"
     response.headers["Content-Type"] = "text/csv"
+    response.headers["Content-Length"] = str(len(csv_data.encode('utf-8')))
     return response
 

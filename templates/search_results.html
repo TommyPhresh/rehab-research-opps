@@ -39,18 +39,24 @@
   Include Clinical Trials
  </label>
 
- <a id="export-csv" class="btn-secondary"
-    href="{{ url_for('main.export_csv', 
-                      query=query|urlencode,
-		      display=display|urlencode if display else None,
-                      sort_criteria=sort_criteria,
-                      ascend=ascend,
-                      show_trials='true' if show_trials else 'false'
-                    ) }}" 
-    download="search_{{ (display|default(query)) | replace(' ', '_') }}.csv"
-    style="float: right; font-size:20px;">
-  Export to Excel
- </a>
+ <div id="export-csv" class="btn-secondary"
+      style="float: right; font-size: 16px; border: 5px solid blue; padding: 10px;">
+    Export to Excel
+  </div>
+</div>
+
+<div id="export-progress-container" style="display: none; width: 80%;
+      max-width: 400px; margin: 20px auto; border: 1px solid #ccc;
+      padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
+  <p id="export-status-message" style="text-align: center;
+      margin-bottom: 10px;">Starting download...</p>
+  <div style="background-color: #e0e0e0; border-radius: 3px; overflow: hidden;">
+    <div id="export-progress-bar" style="width: 0%; height: 20px; 
+          background-color: #4CAF50; text-align: center; line-height: 20px; 
+          color: white;">0%</div>
+  </div>
+  <p id="export-size-info" style="text-align: center; font-size: 0.8em;
+       margin-top: 5px;"></p>
 </div>
 
 <table id="results">

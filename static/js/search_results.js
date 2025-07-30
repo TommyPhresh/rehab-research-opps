@@ -143,3 +143,87 @@ document.addEventListener('DOMContentLoaded', function() {
 
  fetchPage(currentPage);
 });
+
+exportLink.addEventListener('click', async function() {
+ const exportButton = this;
+ const progressContainer = document.getElementById('export-progress-container');
+ const statusMessage = document.getElementById('export-status-message');
+ const progressBar = document.getElementById('export-progress-bar');
+ const sizeInfo = document.getElementById('export-size-info');
+
+ exportButton.disabled = true;
+ exportButton.textContent = 'Preparing download...';
+ progressContainer.style.display = 'block';
+ statusMessage.textContent = 'Generating Excel file...';
+ progressBar.style.width = '0%';
+ progressBar.textContent = '0%';
+ sizeInfo.textContent = '';
+
+ try {
+  const queryString = window.location.search;
+  const exportURL = `/search/export${queryString}`;
+  const response = await(fetch(exportURL));
+
+  if (!response.ok) {
+   throw new Error(`HTTP Error! status: ${response.status}`);
+   }
+
+  const contentLength = response.headers.get('Content-Length');
+  let total = 0;
+  if (contentLength) {
+   total = parseInt(contentLength, 10);
+   statusMessage.textContent = 'Downloading Excel file...';
+  } else {
+   statusMessage.textContent = 'Downloading Excel file (no progress available)';
+  }
+
+  const reader = response.body.getReader();
+  let bytesReceived = 0;
+  const chunks = [];
+
+  while (true) {
+   const {done, value} = await reader.read();
+   if (done) {break;}
+
+   chunks.push(value);
+   bytesReceived += value.length;
+
+   if (total) {
+    const percentage = Math.round((bytesReceived / total) * 100);
+    progressBar.style.width = `${percentage}%`;
+    progressBar.textContent = `${percentage}%`;
+    sizeInfo.textContent = `${(bytesReceived / 1024).toFixed(2)} KB / ${(total / 1024).toFixed(2)} KB`;
+    }
+  }
+  const blob = new Blob(chunks, {type: 'text/csv'});
+
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = 'search_results.csv';
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+
+  statusMessage.textContent = 'Download Complete!';
+  progressBar.style.width = '100%';
+  progressBar.textContent = '100%';
+
+  setTimeout(() => {
+   progressContainer.style.display = 'none';
+   exportButton.disabled = false;
+   exportButton.textContent = 'Export to Excel';
+  }, 3000);
+
+ } catch (error) {
+  console.error('Download failed:', error);
+  statusMessage.textContent = `Download failed: ${error.message}`;
+  progressBar.style.backgroundColor = '#f44336';
+  exportButton.disabled = false;
+  exportButton.textContent = 'Export to Excel';
+  setTimeout(() => {
+   progressContainer.style.display = 'none';
+  }, 5000);
+ }
+});
