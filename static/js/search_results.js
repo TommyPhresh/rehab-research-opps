@@ -19,22 +19,21 @@ grantCheckbox.addEventListener('change', () => {
  fetchPage(1, $('#order_criteria').val(), $('#order_asc').val());
 });
 
-
- /* dynamically sort without reloading */
+/* dynamically sort witout reloading */
 function sortResults(criteria, ascend) {
  const showTrials = grantCheckbox.checked;
- $.ajax({
-  url: `search/page/${currentPage}`
-     + `?sort_criteria=${criteria}`
-     + `&ascend=${ascend}`
-     + `&show_trials=${showTrials}`,
-  method: 'GET',
-  success: function(data) {
-   $('#results tbody').html($(data).find('#results tbody').html());
-   $('#total_pages').val($(data).find('#total_pages').val());
-   updateRowClickHandlers();
-   updatePaginationLinks();
-   updatePaginationSpan();
+  $.ajax({
+   url: `search/page/${currentPage}`
+    + `?sort_criteria=${criteria}`
+    + `&ascend=${ascend}`
+    + `&show_trials=${showTrials}`,
+   method: 'GET',
+   success: function(data) {
+    $('#results tbody').html($(data).find('#results tbody').html());
+    $('#total_pages').val($(data).find('#total_pages').val());
+    updateRowClickHandlers();
+    updatePaginationLinks();
+    updatePaginationSpan();
   }
  });
 }
@@ -45,9 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
  /* pagination of results */
  fetchPage = function(page, criteria='similarity', ascend='DESC') {
-  const showTrials = grantCheckbox.checked;
-  $.ajax({ 
-   url: `/search/page/${page}?`
+  $.ajax({
+   url: `search/page/${page}`
       + `sort_criteria=${criteria}`
       + `&ascend=${ascend}`
       + `&show_trials=${showTrials}`,
@@ -66,10 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
  /* expands/retracts row upon click for full/preview description */
  updateRowClickHandlers = function() {
   const rows = document.querySelectorAll('#results tbody tr');
-  rows.forEach(row  => {
+  rows.forEach(row => {
    row.addEventListener('click', function() {
     const descriptionCell = this.querySelector('.brief-description');
-    
+
     if (descriptionCell.classList.contains('expanded')) {
      descriptionCell.classList.remove('expanded');
      descriptionCell.textContent = descriptionCell.textContent.slice(0, 100);
@@ -82,12 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
   });
  }
 
- /* paginated results - buttons and navigation */
+ /* pagination buttons and navigation */
  updatePaginationLinks = function() {
   const prevLink = document.querySelector('.pagination .prev');
   const nextLink = document.querySelector('.pagination .next');
   const totalPages = parseInt(document.getElementById('total_pages').value);
-  
+
   if (prevLink) {
    prevLink.replaceWith(prevLink.cloneNode(true));
   }
@@ -101,37 +99,26 @@ document.addEventListener('DOMContentLoaded', function() {
    newPrev.addEventListener('click', function(event) {
     event.preventDefault();
     const page = currentPage - 1;
-    
+
     if (page > 0) {
      let criteria = $('#order_criteria').val();
      let ascend = $('#order_asc').val();
      fetchPage(page, criteria, ascend);
-    } 
+    }
    });
   }
-  
+
   if (newNext) {
    newNext.addEventListener('click', function(event) {
-    event.preventDefault(); 
-    const page = currentPage + 1;
-    
-    if (page <= totalPages) {
-     let criteria = $('#order_criteria').val();
-     let ascend = $('#order_asc').val();
-     fetchPage(page, criteria, ascend);
-    }
+    event.preventDefault();
+     const page = currentPage + 1;
 
-    if (!prevLink && currentPage > 1) {
-     const newElem = document.createElement('a');
-     const target = document.getElementById('pagination');
-
-     newElem.setAttribute('href', '#');
-     newElem.setAttribute('class', 'prev');
-     newElem.innerHTML = '&laquo; Previous';
-
-     target.appendChild(newElem);
-    }
-   });
+     if (page <= totalPages) {
+      let criteria = $('#order_criteria').val();
+      let ascend = ('#order_asc').val();
+      fetchPage(page, criteria, ascend);
+     }
+    });
   }
  }
 
@@ -144,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
  fetchPage(currentPage);
 });
 
+/* export results to CSV file */
 exportLink.addEventListener('click', async function() {
  const exportButton = this;
  const progressContainer = document.getElementById('export-progress-container');
@@ -153,7 +141,7 @@ exportLink.addEventListener('click', async function() {
 
  exportButton.disabled = true;
  exportButton.textContent = 'Preparing download...';
- progressContainer.style.display = 'block';
+ progressContainer.style.display= 'block';
  statusMessage.textContent = 'Generating Excel file...';
  progressBar.style.width = '0%';
  progressBar.textContent = '0%';
@@ -166,7 +154,7 @@ exportLink.addEventListener('click', async function() {
 
   if (!response.ok) {
    throw new Error(`HTTP Error! status: ${response.status}`);
-   }
+  }
 
   const contentLength = response.headers.get('Content-Length');
   let total = 0;
@@ -190,10 +178,10 @@ exportLink.addEventListener('click', async function() {
 
    if (total) {
     const percentage = Math.round((bytesReceived / total) * 100);
-    progressBar.style.width = `${percentage}%`;
+    progressBar.style.width =`${percentage}%`;
     progressBar.textContent = `${percentage}%`;
     sizeInfo.textContent = `${(bytesReceived / 1024).toFixed(2)} KB / ${(total / 1024).toFixed(2)} KB`;
-    }
+   }
   }
   const blob = new Blob(chunks, {type: 'text/csv'});
 

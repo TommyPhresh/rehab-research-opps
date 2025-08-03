@@ -1,10 +1,12 @@
-from flask import Blueprint, request, render_template, redirect, url_for, make_response
+from flask import Blueprint, request, render_template, redirect, url_for, make_response, flash, current_app
+from flask_mail import Message
 from flask_login import login_user, login_required, logout_user, current_user
 import dateutil, csv, io
+import logging
 
-from db import basic_query, get_db, specialty_query
+from db import basic_query, get_db
 from constants import specialty_queries
-from extensions import cache, login_manager
+from extensions import cache, login_manager, mail
 from user import User, users
 
 bp = Blueprint('main', __name__)
@@ -49,6 +51,33 @@ def index():
 def homepage():
     return render_template('home.html', specialties=specialty_queries)
 
+# user bug report ffeedback submission
+@bp.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == "POST":
+        request_type = request.form.get('request_type')
+        user_email = request.form.get('user_email')
+        message_body = request.form.get('message')
+
+        msg = Message(
+            subject=f'New {request_type} from Rehab-Research',
+            sender=current_app.config['MAIL_USERNAME'],
+            recipients=current_app.config['ADMINS']
+        )
+        msg.body = f"User Email: {user_email}\n\n"\
+                   f"Request Type: {request_type}\n\n" \
+                   f"Message: \n{message_body}"
+
+        try:
+            mail.send(msg)
+            flash('Thank you for your feedback! Your message has been sent.', 'success')
+            return redirect(url_for('main.homepage'))
+        except Exception as e:
+            current_app.logger.info(f"Exception: {e}")
+            flash(f'An error occurred while sending your message: {e}', 'error')
+            return redirect(url_for('main.contact'))
+    return render_template('contact.html')
+
 #################################
 #  BEGIN SEARCH PAGE FUNCTIONS  #
 #################################
@@ -59,19 +88,9 @@ def homepage():
 def search():
     conn = get_db()
     user_query = request.args.get('query')
+    results = basic_query(conn, user_query)
     display = request.args.get('display')
-    results = []
 
-    if display:
-        results = specialty_query(conn, specialty)
-    elif user_query:
-        results = basic_query(conn, user_query)
-    else: 
-        cache.delete('query')
-        cache.delete('display')
-        cache.set('query', '')
-        return redirect(url_for('routes.search_page_router', page=1, query=''))
-    
     cache.set(f'search_results_{user_query}', results)
     cache.set('query', user_query)
     cache.set('display', display)
@@ -97,13 +116,8 @@ def search_page(page, order_criteria, order_asc, show_trials):
 
     # regenerate results if cache has expired
     if results is None:
-        if display:
-            results = specialty_query(conn, str(display))
-        else:
-            results = basic_query(conn, user_query)
+        results = basic_query(conn, user_query)
         cache.set(f"search_results_{user_query}", results)
-        cache.set('query', user_query)
-        cache.set('display', display)
 
     # filter & re-order based on updated sort criteria from user
     if not show_trials:
@@ -173,4 +187,3 @@ def export_csv():
     response.headers["Content-Type"] = "text/csv"
     response.headers["Content-Length"] = str(len(csv_data.encode('utf-8')))
     return response
-

@@ -4,9 +4,7 @@ import logging, duckdb, os
 from duckdb.typing import VARCHAR, FLOAT, INTEGER
 from flask import current_app
 
-from constants import REFRESH_INTERVAL, specialty_queries,
-    LIVE_DB_LOCATION, LIVE_SPECIALTY_LOCATION, TMP_DB_LOCATION,
-    TMP_DB_PATH, TMP_SPECIALTY_PATH, BACKUP_DB_PATH, BACKUP_SPECIALTY_PATH
+from constants import REFRESH_INTERVAL, DB_LOCATION, NEW_DB_LOCATION, TMP_DB_LOCATION
 from private_updaters import updaters as privates
 from db import get_db
 from gov_updaters import updaters as publics 
@@ -104,34 +102,18 @@ def rebuild_data(app, dest='new_data.parquet'):
                 """)
             conn.commit()
 
-        calculate_specialty_vectors(conn, app)
-        
-        # updating live db file with rollback thru robust atomic swap
+        # save embeddings to parquet file 
         conn.execute(f"""
-            COPY documents
-            TO '{TMP_DB_PATH}' (FORMAT PARQUET);
+            COPY documents TO
+            '{NEW_DB_LOCATION}'
+            (FORMAT PARQUET)
         """)
-        if os.path.exists(BACKUP_DB_PATH):
-            os.remove(BACKUP_DB_PATH)
-        if os.path.exists(LIVE_DB_LOCATION):
-            shutil.move(LIVE_DB_LOCATION, BACKUP_DB_PATH)
-        else:
-            print('CRITICAL ERROR - no live db to back up')
-        shutil.move(TMP_DB_PATH, LIVE_DB_LOCATION)
-        
-        # updating specialty db file the same way
-        conn.execute(f"""
-            COPY specialty_vectors 
-            TO '{TMP_SPECIALTY_PATH}' (FORMAT PARQUET);
-        """)
-        if os.path.exists(BACKUP_SPECIALTY_PATH):
-            os.remove(BACKUP_SPECIALTY_PATH)
-        if os.path.exists(LIVE_SPECIALTY_LOCATION):
-            shutil.move(LIVE_SPECIALTY_LOCATION, BACKUP_SPECIALTY_PATH)
-        else:
-            print('CRITICAL ERROR - no live specialty db to back up')
-        shutil.move(TMP_SPECIALTY_PATH, LIVE_SPECIALTY_LOCATION)
-        
+        print(f'Saved all updates to {NEW_DB_LOCATION}')
+
+        # atomic swap that ho
+        if os.path.exists(DB_LOCATION):
+            os.remove(DB_LOCATION)
+        shutil.move(NEW_DB_LOCATION, DB_LOCATION)
         print('Data refresh complete')        
 
     except Exception as e:
@@ -195,42 +177,4 @@ def get_data():
         except Exception as e:
             print(f'{api.__name__} failed: {e}')
     return data
-
-# calculates vector similarity for each specialty on refresh
-# replaces live calculation upon user interaction with specialty button
-# saves results to specialty_vectors.parquet file
-# Args: 
-    # conn: duckdb connection 
-    # app: Flask app created in the create_app() function in app.py
-    # specialty_queries: dict containing pre-defined specialty queries
-def calculate_specialty_vectors(conn, app):
-    conn.execute("""
-        CREATE OR REPLACE TABLE specialty_vectors (
-            specialty_name VARCHAR,
-            doc_rowid INTEGER,
-            similarity FLOAT
-        );    
-    """)
-    conn.commit()
-    
-    # compute similarities for each specialty query
-    for specialty in specialty_queries.keys():
-        query_vector = app.model.encode(specialty_queries[specialty]['definition'])['dense_vecs']
-        specialty_df = conn.execute("""
-            SELECT 
-                documents.rowid AS doc_rowid, 
-                array_inner_product(?, documents.embedding) AS similarity
-            FROM documents
-            WHERE documents.embedding IS NOT NULL AND similarity > 0.5
-            ORDER BY similarity DESC
-        """, (query_vector,)).fetchdf()
-        specialty_df['specialty_name'] = specialty
-        conn.execute("""
-            INSERT INTO specialty_vectors
-            SELECT specialty_name, doc_rowid, similarity 
-            FROM specialty_df
-        """)
-        conn.commit()
-        print(f'Completed calculations for {specialty}')
-
 

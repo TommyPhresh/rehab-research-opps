@@ -10,17 +10,17 @@
 {% block content %}
 
 <form action="/search" method="GET" id="clinician-search">
- <input id ="searchInput" style="height: 30px; width: 75%;" type="text" name="query" placeholder="Search..." required>
+ <input id="searchInput" style="height: 30px; width: 75%;" type="text" name="query" placeholder="Search..." required>
  <button id="searchButton" style="font-size: 18px;" type="submit">Go!</button>
 </form>
 
 {% if display %}
 <h1>Showing {{ length }} results in the specialty "{{ display }}"</h1>
 {% else %}
-<h1>Showing {{ length }} results for "{{ query }}"</h1>
+<h1>Showing {{length }} results for "{{ query }}"</h1>
 {% endif %}
 
-<div> 
+<div>
  <label for="order_criteria">Sort by:</label>
  <select id="order_criteria">
   <option value="similarity">Relevance</option>
@@ -38,25 +38,25 @@
   {% if show_trials %}checked{% endif %}>
   Include Clinical Trials
  </label>
-
+ 
  <div id="export-csv" class="btn-secondary"
-      style="float: right; font-size: 16px; border: 5px solid blue; padding: 10px;">
-    Export to Excel
-  </div>
+    style="float: right; font-size: 16px; border: 3px solid blue; padding: 5px;">
+  Export to Excel
+ </div>
 </div>
 
 <div id="export-progress-container" style="display: none; width: 80%;
-      max-width: 400px; margin: 20px auto; border: 1px solid #ccc;
-      padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
-  <p id="export-status-message" style="text-align: center;
-      margin-bottom: 10px;">Starting download...</p>
-  <div style="background-color: #e0e0e0; border-radius: 3px; overflow: hidden;">
-    <div id="export-progress-bar" style="width: 0%; height: 20px; 
-          background-color: #4CAF50; text-align: center; line-height: 20px; 
-          color: white;">0%</div>
-  </div>
-  <p id="export-size-info" style="text-align: center; font-size: 0.8em;
-       margin-top: 5px;"></p>
+         max-width: 400px; margin: 20px auto; border: 1px solid #ccc;
+         padding: 10px; border-radius: 5px; background-color: #f9f9f9;">
+ <p id="export-status-message" style="text-align: center;
+        margin-bottom: 10px;">Starting download...</p>
+ <div style="background-color: #e0e0e0; border-radius: 3px; overflow: hidden;">
+  <div id="export-progress-bar" style="width: 0%; height: 20px;
+           background-color: #4CAF50; text-align: center; line-height: 20px;
+           color: white;">0%</div>
+ </div>
+ <p id="export-size-info" style="text-align: center; font-size: 0.8em;
+        margin-top: 5px;"></p>
 </div>
 
 <table id="results">
@@ -68,23 +68,23 @@
    <th style="width: 45%">Brief Description</th>
   </tr>
  </thead>
- <tbody> 
-  {% for result in results %} 
+ <tbody>
+  {% for result in results %}
    <tr data-similarity="{{ result[4] }}" data-full-description="{{ result[2] }}" data-grant="{{ result[6] }}">
-    <td> 
-     <a href="{{ result[5] }}" target="_blank"> {{ result[0] }}</a>
+    <td>
+     <a href="{{ result[5] }}" target="_blank">_{{ result[0] }}</a>
     </td>
     <td>{{ result[1] }}</td>
     <td>{{ result[3] }}</td>
     <td class="brief-description">{{ result[2][:100] + "..." }}</td>
    </tr>
-  {% endfor %}
+   {% endfor %}
  </tbody>
 </table>
 
 <input type="hidden" id="total_pages" value="{{ total_pages }}">
 
-<div class="pagination" id = "pagination">
+<div class="pagination" id="pagination">
  <a href="#" class="prev">&laquo; Previous</a>
  <span class="page-numbers">Page 1 of {{ total_pages }}</span>
  <a href="#" class="next">Next &raquo;</a>
@@ -92,5 +92,5 @@
 {% endblock %}
 
 {% block scripts %}
- <script src="{{ url_for('static', filename='js/search_results.js') }}"></script>
+ <script src="{{ url_for('static', filename='s/search_results.js') }}"></script>
 {% endblock %}

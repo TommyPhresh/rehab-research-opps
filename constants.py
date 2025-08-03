@@ -101,12 +101,5 @@ specialty_queries = {
 }
 
 REFRESH_INTERVAL = timedelta(weeks=4)
-
-# DB constants
-LIVE_DB_LOCATION = 'data.parquet'
-LIVE_SPECIALTY_LOCATION = 'specialty_vectors.parquet'
-TMP_DB_LOCATION = 'tmp_data.duckdb'
-TMP_DB_PATH = 'data.parquet.tmp'
-TMP_SPECIALTY_PATH = 'specialty_vectors.parquet.tmp'
-BACKUP_DB_PATH = 'data.parquet.bak'
-BACKUP_SPECIALTY_PATH = 'specialty_vectors.bak'
+DB_LOCATION = "data.parquet"
+TMP_DB_LOCATION = "tmp.duckdb"

@@ -1,6 +1,7 @@
 import duckdb
 from duckdb.typing import VARCHAR, FLOAT
 from flask import g, current_app
+from constants import DB_LOCATION
 
 
 # checks for existing duckdb connection. if found, closes it 
@@ -27,28 +28,8 @@ def basic_query(conn, search_term):
     SELECT name, org, "desc", deadline,
     array_inner_product(CAST(embedding AS FLOAT[1024]), vectorize('{str(search_term)}')) AS similarity,
     link, isGrant
-    FROM {app.db}
+    FROM {DB_LOCATION}
     WHERE similarity > 0.5
     ORDER BY similarity DESC
     """
     return conn.execute(query).fetchall()
-    
-# accesses pre-calculated specialty results
-def specialty_query(conn, specialty):
-    query = f"""
-        SELECT 
-            maindb.name, 
-            maindb.org,
-            maindb."desc",
-            maindb.deadline,
-            specialtydb.similarity AS similarity
-            maindb.link, 
-            maindb.isGrant
-        FROM current_app.db AS maindb
-        JOIN current_app.specialty_db AS specialtydb
-        ON maindb.rowid = specialtydb.doc_rowid
-        WHERE specialtydb.specialty_name = '{str(specialty)}'
-        ORDER BY specialtydb.similarity DESC
-    """
-    return conn.execute(query).fetchall()
-
